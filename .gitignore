@@ -1,0 +1,33 @@
+
+# Folders
+cache/
+.vscode/
+*__pycache__/
+logs/
+archive/
+saves/
+Melissa Endures it All - Biku/
+
+# File extensions
+.~lock*
+*.code-workspace
+*.xcf
+*.save
+*.rpyc
+*.bak
+*.rpymc
+*.rpym
+*.aup3*
+
+# Specific Files
+log.txt
+traceback.txt
+game/saves/persistent
+errors.txt
+src/sandbox.py
+src/GirlfriendStats.py
+src/InventoryItems.py
+src/InventorySystem.py
+git-filter-repo
+renamed_variables.txt
+project.json

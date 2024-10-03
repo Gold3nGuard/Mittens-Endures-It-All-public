@@ -1,0 +1,5 @@
+- My primary source of source code by Pisikak: https://www.omorashi.org/files/file/9194-melissa-endures-it-all/
+- Original source by drw: https://onlinemel.angelfire.com/ 
+- RenPy inspiration by WielkiJa: https://www.omorashi.org/files/file/14514-melissa-remake-beta/
+- This source was the one that inspired the primary source by FamMel: https://github.com/Forget-About-Me2/FamMel.git
+- Another version I didn't look at much by HollyLeaves: https://gitlab.com/hollyleaves/melissa
