@@ -6,7 +6,7 @@
 
 1. Download the latest release: [MittensEnduresItAll-v0.1.1-pc.zip](https://github.com/Gold3nGuard/Mittens-Endures-It-All-public/releases/tag/v0.1.1)
 2. Unzip the archive to a folder of your choice.
-3. Go into the folder `MittensEnduresItAll-v0.1.0-pc`
+3. Go into the folder `MittensEnduresItAll-v0.1.1-pc`
 4. Run `MittensEnduresItAll.exe`
 5. Enjoy!
 
