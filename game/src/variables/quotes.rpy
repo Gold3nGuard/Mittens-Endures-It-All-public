@@ -951,3 +951,11 @@ define predrinkdiureticquotes=["will soon be dying for the toilet.",
 #     girlfriend.name + " seems more interested in shredding her napkin into little strips that what you have to say.",
 #     girlfriend.name + " appears engrossed in the program on the bar television ... which is an infomercial for Arizona real estate.",
 #     girlfriend.name + " looks exasperated."]
+
+define triesToDryCrotchQuote = ["She daintily fans at her soaked crotch with her hand a couple of times, as if to dry it out.",
+                "She wipes the soaked crotch of her jeans with her hand, flinging the fragrant drops to the ground.",
+                "She presses her soaked jeans into her pussy and drops of pee well up and fall to the ground.",
+                "She fans her crotch with her hand, as if to dry out her soaked jeans.",
+                "She wipes at her soaked thighs with the back of her hand and then flings the drops to the ground.",
+                "She feels her butt and the back of her jeans for a wet patch.  They're soaked, but it's difficult to tell."
+]

@@ -7,4 +7,6 @@ default Amity = Girlfriend(_name="Amity",
                             _bladder = 300, 
                             _diuretic_level = 0, 
                             _bladder_filling_rate = 10, 
-                            _bladder_first_urge = 600)
+                            _bladder_first_urge = 600,
+                            _break_the_seal = True,
+                            _break_seal_modifier = 0.1)

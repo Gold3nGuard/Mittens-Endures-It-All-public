@@ -50,12 +50,24 @@ init -3 python:
 default gametime = Time()
 
 label updateTimeAndStats():
+    # Reset flags
+    $ girlfriend.now_peeing = False  
+    $ girlfriend.now_wetting = False  
+    $ girlfriend.now_just_made_it = False  
+    $ girlfriend.now_peeing_outdoors = False  
+
     # Updates the time and girlfriend's omo stats
-    $ gametime.advanceTime()
     $ girlfriend.updateBladderFillRate()
     $ girlfriend.transfer_tummy_to_bladder(girlfriend.bladder_filling_rate)
     $ girlfriend.diuretic_level_decay()
+
+    # turns_to_wait_before_asking used to be waitcounter
     if girlfriend.turns_to_wait_before_asking > 0:
         $ girlfriend.turns_to_wait_before_asking -= 1
+
+    $ gametime.advanceTime()
+
+    # TODO: Implement hard limits on stats such as mood, shyness, tummy
+    
 
     return

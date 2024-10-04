@@ -2,8 +2,8 @@ init -2 python:
 
     from dataclasses import dataclass, field
     from enum import Enum
-    from math import ceil
-    from typing import List
+    from math import ceil, floor
+    from typing import List, Union
 
     class PeeUrgencyLevel(Enum):
         """A collection of enums to indicate how badly girlfriend needs to pee
@@ -32,6 +32,10 @@ init -2 python:
             _diuretic_level (int): Indirectly indicates how quickly liquids go from tummy to bladder.
             _bladder_filling_rate (int): Indicates directly how quickly liquids go from tummy to bladder.
             
+            # Options
+            _break_the_seal (bool): Does her bladder capacity decrease every time she empties it?
+            _break_seal_modifier (float): The percentage that your gf's bladder capacity will decrease by after emptying.
+
             # Hidden stats
             _bladder_first_urge (int): The volume in which your girlfriend first feels the urge to pee. 
             _arousal (int): Indicates how likely your girlfriend is to let you penetrate her.
@@ -50,10 +54,9 @@ init -2 python:
             _late (bool): Were you late picking up your date?
             _external_flirt (bool): Have you flirted with someone else in this venue? Defaults to False. 
 
-=True
             _owed_favour (bool): Does she owe you a favour? Defaults to False. 
             _panty_colour_hex (str):
-            _panty_colour_name (str):
+            _panty_colour_name (str | None): . If None, that means she has no panties on. 
             _wet_legs (bool): Are her legs are wet? Defaults to False.
             _wet_her_panties (bool): Has she ever wet herself on this date? Defaults to False.
             _pre_hold (bool): Did she agree to hold it until you picked her up? Defaults to False.
@@ -77,6 +80,9 @@ init -2 python:
             # How long ago has it been since she peed and how much has she drank?
             _last_time_peed (Time): 
             _drank_inventory (Inventory): 
+
+            # Randomness thresholds 
+            _bribe_ask_threshold (int): Likelihood she'll hold it if you ask her when desperate
 
             # Constants (mostly)
             _MOOD_MIN (int): Defaults as 0
@@ -107,29 +113,33 @@ init -2 python:
         _diuretic_level: int
         _bladder_filling_rate: int
 
+        # Options
+        _break_the_seal: bool
+        _break_seal_modifier: float
+
         # Hidden stats
         _bladder_first_urge: int
         _arousal: int = 0 # To be implemented later!
 
 
         # Flags and counters
-        _flirted_counter: int = 0 # TODO: getter + setter + docstring # Originally `flirtedflag`. indicates how many times you've flirted with her at the current venue.
-        _MAX_FLIRTS: int = 2 # TODO: getter + setter + docstring
+        _flirted_counter: int = 0 # Originally `flirtedflag`. indicates how many times you've flirted with her at the current venue.
+        _MAX_FLIRTS: int = 2 
 
-        _restroom_locked: bool = False # TODO: getter + setter + docstring # originally `rrlockedflag`
-        _asked_swim: bool = False # TODO: getter + setter + docstring 
-        _wet_the_car: bool = False # TODO: getter + setter + docstring 
-        _spurted: bool = False # TODO: getter + setter + docstring # Originally `shespurted`
+        _restroom_locked: bool = False # originally `rrlockedflag`
+        _asked_swim: bool = False  
+        _wet_the_car: bool = False  
+        _spurted: bool = False # Originally `shespurted`
 
-        _broke_ice: bool = False # TODO: getter + setter + docstring # She's previously mentioned that she needs to pee.
-        _saw_her_pee: bool = False  # TODO: getter + setter + docstring 
-        _late: bool = False # TODO: getter + setter + docstring 
-        _external_flirt: bool = False # TODO: getter + setter + docstring 
+        _broke_ice: bool = False # She's previously mentioned that she needs to pee.
+        _saw_her_pee: bool = False   
+        _late: bool = False  
+        _external_flirt: bool = False  
 
         # Flags and counters
         _owed_favour: bool = False 
-        _panty_colour_hex: str = "#FF00FF" # TODO: getter + setter + docstring
-        _panty_colour_name: str = "magenta" # TODO: getter + setter + docstring
+        _panty_colour_hex: str = "#FF00FF" 
+        _panty_colour_name: Union[str, None] = "magenta" 
         _wet_legs: bool = False 
         _wet_her_panties: bool = False 
         _pre_hold: bool = False 
@@ -142,13 +152,13 @@ init -2 python:
         _turns_to_wait_before_asking: int = 0 # originally `waitcounter`
 
         
-        _now_peeing: bool = False # TODO: getter + setter + docstring 
-        _now_just_made_it: bool = False # TODO: getter + setter + docstring 
-        _now_wetting: bool = False # TODO: getter + setter + docstring 
-        _now_peeing_outdoors: bool = False  # TODO: getter + setter + docstring 
-        _just_checked_her_out: bool = False # TODO: getter + setter + docstring 
+        _now_peeing: bool = False  
+        _now_just_made_it: bool = False  
+        _now_wetting: bool = False  
+        _now_peeing_outdoors: bool = False   
+        _just_checked_her_out: bool = False  
 
-        _peed_outside: bool = False  # TODO: getter + setter + docstring 
+        _peed_outside: bool = False   
 
         # Variables used for complaining how long ago she's peed 
         # and how much she's drunk
@@ -160,6 +170,10 @@ init -2 python:
         _suggested_location: Location = Location.COVENTION_HALL_PLAY
         _visited_locations: List[Location] = field(default_factory=list) # Creates an empty list for dataclass
         _favourite_play: CoventionPlayChoice = CoventionPlayChoice.POST_EXAM_EMBARRASSING_DESPERATION
+
+        # Randomness thresholds
+        _bribe_ask_threshold: int = 90 # Likelihood she'll hold it if you ask her when desperate
+
 
         # Constants (mostly)
         _MOOD_MIN: int = 0
@@ -259,6 +273,10 @@ init -2 python:
         @property
         def tummy_capacity(self) -> int:
             return self._tummy_capacity
+
+        @property
+        def break_the_seal(self) -> bool:
+            return self._break_the_seal
 
 
         # --- Flags and counters --- #
@@ -475,7 +493,20 @@ init -2 python:
         @peed_outside.setter
         def peed_outside(self, value: bool):
             self._peed_outside = value
-            
+
+        
+        # --- Randomness thresholds --- #
+        
+        #
+        @property
+        def bribe_ask_threshold(self) -> int:
+            return self._bribe_ask_threshold
+        @bribe_ask_threshold.setter
+        def bribe_ask_threshold(self, value: int):
+            self._bribe_ask_threshold = value
+
+
+
         # @property
         # def ax(self) -> bool:
         #     return self._x
@@ -497,7 +528,32 @@ init -2 python:
         @property
         def drank_inventory(self) -> Inventory:
             return self._drank_inventory
-        def flush_drank_inventory(self): 
+
+        def flush_drank_inventory(self, gametime: Time): 
+
+            # Derate bladder capacity if she loses it...
+            if (self.break_the_seal):
+                self.bladder_urge -= floor(self._break_seal_modifier * self.bladder_urge)
+
+
+            # Reset all relevant flags and counters based on wetting status
+            if not self._now_wetting:
+                if (self.bladder >= self.bladder_emergency): 
+                    self.now_just_made_it = True    
+                elif (self.bladder < self.bladder_emergency): 
+                    self.now_peeing = True    
+
+            # Reset all relevant flags and counters
+            self.ask_hold_it_counter = 0
+            self.turns_to_wait_before_asking = 0
+            self.gotta_go_flag = False 
+            self.pre_peed = True 
+            self.last_time_peed = gametime
+            self.spurted = False 
+            self.bribe_ask_threshold = 90
+
+
+            # Remove all liquids drank
             # Check for amount_girlfriend_drank == 0 when generating dialogue!
             for key in self._drank_inventory.items:
                 self._drank_inventory.items[key].amount_girlfriend_drank = 0
@@ -612,7 +668,7 @@ init -2 python:
             elif (self.diuretic_level > 0):
                 self.diuretic_level -= 1
 
-        def pees(self, amount: int = -1):
+        def pees(self, gametime: Time, amount: int = -1):
             """Girlfriend empties her bladder.
 
             Args:
@@ -621,7 +677,9 @@ init -2 python:
             """
 
             if amount == -1:
+
                 self._bladder = 0 
+                self.flush_drank_inventory(gametime)
             elif amount < 0:
                 raise ValueError(f"amount cannot be negative. {amount=}")
             else:

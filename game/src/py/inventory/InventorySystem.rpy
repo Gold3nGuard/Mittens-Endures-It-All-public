@@ -303,7 +303,8 @@ init -3 python:
                 
                 else:
                     # TODO: Implement the use of other items with elif!
-                    pass
+                    item_used: bool = item.use_item(girlfriend)
+
 
                 # Check if item was successfully used, remove it, then update the confirmation state
                 if item_used:

@@ -7,6 +7,8 @@ logs/
 archive/
 saves/
 Melissa Endures it All - Biku/
+lib/
+renpy/
 
 # File extensions
 .~lock*
@@ -18,6 +20,7 @@ Melissa Endures it All - Biku/
 *.rpymc
 *.rpym
 *.aup3*
+
 
 # Specific Files
 log.txt
@@ -31,3 +34,8 @@ src/InventorySystem.py
 git-filter-repo
 renamed_variables.txt
 project.json
+MittensEnduresItAll-v0.1.1-pc.zip
+MittensEnduresItAll.exe
+MittensEnduresItAll.py
+MittensEnduresItAll.sh
+game/script_version.txt

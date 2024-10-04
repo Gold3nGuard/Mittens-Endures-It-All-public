@@ -34,6 +34,7 @@ label start:
     # Initialize girlfriend stats and display
     $ girlfriend = Amity # Alias between two saved vars is ok. This is the girlfriend object, not girlfriend the Character()
     define character.mainCharacter = character.Luz 
+    default mainCharactersPalisman = "Stringbean"
     $ character.girlfriend = character.Amity # This is girlfriend the Character()
 
     show screen girlfriend_stats

@@ -216,52 +216,204 @@ label displayGottaGoVocalization():
 label askSpurted(mainCharacter, girlfriend):
 
     mainCharacter "Did you just pee yourself?"
+
     $ randInt = renpy.random.randint(0,5)
     "[spurtQuote[randInt]]"
+
     $ randInt = renpy.random.randint(0,5)
     girlfriend "[spurtDenyQuote[randInt]]"
+
+    call displayNeed() from _call_displayNeed_2
+
+    # TODO: add check if she's wet...
+
     return
 
 label spurtedHerself(mainCharacter, girlfriend):
 
-    $ girlfriend.pees(50)
+    $ girlfriend.pees(gametime = gametime, amount = 50)
+    $ spurt_threshold -= 0.1 * spurt_threshold
+    $ girlfriend.spurted = True
 
     $ randInt = renpy.random.randint(0,5)
     "[spurtQuote[randInt]]"
 
+    call displayNeed() from _call_displayNeed_3
+
     menu:
         "Ask her if she peed herself.":
-            call updateTimeAndStats() from _call_updateTimeAndStats_33
+            # call updateTimeAndStats() from _call_updateTimeAndStats_33
             call askSpurted(mainCharacter, girlfriend) from _call_askSpurted
 
         "Continue ...":
-            call updateTimeAndStats() from _call_updateTimeAndStats_34
+            pass
+            # call updateTimeAndStats() from _call_updateTimeAndStats_34
 
     return
 
 
 label checkWetHerself(mainCharacter, girlfriend):
+    # Originally `wetherself`
     # Check if girlfriend's bladder is full enough to lose control, then execute the actions.
 
-    #  She loses control
-    $ wetQuote = ["Suddenly, " + girlfriend.name + " squeals and then gasps!",
-        "Suddenly, " + girlfriend.name + " freezes in place and her face turns bright red.",
-        girlfriend.name + " gasps and grabs at her pussy.",
-        girlfriend.name + " squeals and doubles over.",
-        girlfriend.name + " suddenly gasps and her face turns red.",
-        girlfriend.name + " suddenly shudders and her face turns red."]
-
-
+    # Check if she loses control
     if (girlfriend.bladder > girlfriend.bladder_lose):
 
-        call spurtedHerself(mainCharacter, girlfriend) from _call_spurtedHerself
+        # Indicate that gf is currently wetting
+        $ girlfriend.now_wetting = True
 
+        # Define her wetting actions
+        $ wetQuote = ["Suddenly, " + girlfriend.name + " squeals and then gasps!",
+            "Suddenly, " + girlfriend.name + " freezes in place and her face turns bright red.",
+            girlfriend.name + " gasps and grabs at her pussy.",
+            girlfriend.name + " squeals and doubles over.",
+            girlfriend.name + " suddenly gasps and her face turns red.",
+            girlfriend.name + " suddenly shudders and her face turns red."]
+
+        # Display her wetting action
         $ randInt = renpy.random.randint(0,5)
         "[wetQuote[randInt]]"
+
+        # Check if she spurts rather than wets
+        if ((randomChoice(spurt_threshold)) and 
+            (currentLocation != Location.THE_HOT_TUB) and
+            (not girlfriend.spurted)
+        ):
+            call spurtedHerself(mainCharacter, girlfriend) from _call_spurtedHerself
+        
+        else:
+            $ spurt_threshold = 50
+
+            # menu:
+            #     "Continue...":
+            #         pass
+
+            call wetHerself2(mainCharacter, girlfriend) from _call_wetHerself2
+
+            # "Suddenly, you hear the loud hissing as her bladder uncontrollably empties itself."
+            # $ girlfriend.pees(gametime = gametime)
+
+            # $ randInt = renpy.random.randint(0,5)
+            # girlfriend "[embarQuote[randInt]]"
+
+    return
+
+
+label wetHerself2(mainCharacter, girlfriend):
+
+    if currentLocation == Location.BROOM:
+        "[girlfriend.name] suddenly and frantically looks around."
+        girlfriend "Oh no! [mainCharactersPalisman]!"
+        "She arches her back, lifting her ass off the staff."
+        "You hear the loud hissing as her bladder uncontrollably empties itself."
+        "You feel drops of her urine as the wind blows the cascading liquid in your direction."
+        "It feels like a warm rain drizzling on your back."
+        $ girlfriend.pees(gametime = gametime)
+        $ girlfriend.wet_legs = True 
+        $ girlfriend.wet_her_panties = True
+        $ girlfriend.wet_the_car = True
+       
+    # seatbelt doesn't make sense when they're on a staff
+    # elif currentLocation == Location.MAKEOUT_LOCATION:
+    #     pass 
+    elif currentLocation == Location.THE_HOT_TUB:
+        "[girlfriend.name] suddenly stiffens and whispers:"
+        girlfriend "Oh no!" 
+        $ girlfriend.pees(gametime = gametime)
+        "She sighs and slumps back in the tub, lost in her own little world for a minute or so."
+        "There's complete silence aside from her heavy breathing and some crickets in the distance."
+    else:
         "Suddenly, you hear the loud hissing as her bladder uncontrollably empties itself."
-        $ girlfriend.pees()
+        $ girlfriend.pees(gametime = gametime)
+        $ girlfriend.wet_legs = True 
+        $ girlfriend.wet_her_panties = True
 
         $ randInt = renpy.random.randint(0,5)
         girlfriend "[embarQuote[randInt]]"
 
+
+    call wetHerself3(mainCharacter, girlfriend) from _call_wetHerself3
     return
+
+label wetHerself3(mainCharacter, girlfriend):
+
+    if currentLocation == Location.BROOM:
+        girlfriend "I'm {b}so{/b} sorry about [mainCharactersPalisman]..."
+        "She settles unhappily feeling her soaked, squishy pants on the damp staff."
+        $ girlfriend.shyness += 20
+        $ girlfriend.mood -= 20
+    elif currentLocation == Location.THE_HOT_TUB:
+        girlfriend "I'm {b}so{/b} sorry... I just couldn't hold it."
+        "The faint scent of her urine rises from the water."
+        girlfriend "I peed in the tub."
+        $ girlfriend.shyness += 20
+        $ girlfriend.mood -= 20 
+    else:
+        if ((girlfriend.panty_colour_name is not None) and
+            (girlfriend.shyness < 70)
+        ):
+            # TODO: This part is supposed to be dependent on jeans vs skirt. 
+            # I decided not to implement for now.  
+            "She takes off her jeans and slowly peels her soaked [girlfriend.panty_colour_name] panties down her dripping legs, holding them daintily between her thumb and forefinger."
+
+            if (girlfriend.mood > 40):
+                "[girlfriend.name] hands you the wet panties, soaked with her fragrant urine."
+                girlfriend "Is there someplace you can put these?"
+                # TODO: Add wet panties to inventory system
+                $ girlfriend.panty_colour_name = None # She's now not wearing panties!
+        elif (girlfriend.panty_colour_name is None):
+            girlfriend "Good thing I wasn't wearing panties, I guess."
+        
+        $ randInt = renpy.random.randint(0,5)
+        girlfriend "[triesToDryCrotchQuote[randInt]]"
+
+        menu OfferTowelsOrPanties:
+
+            "Offer her paper towels" if item_roll in inventory:
+                call givePaperTowels() from _call_givePaperTowels 
+
+            "Offer her a clean pair of panties" if item_panties in inventory:
+                call giveDryPanties() from _call_giveDryPanties
+
+            "Continue...":
+                call updateTimeAndStats() from _call_updateTimeAndStats_33
+
+    $ girlfriend.now_wetting = False
+    return
+
+label givePaperTowels():
+    
+    girlfriend "Thanks!"
+    "She wipes the pee from her legs and pussy."
+    $ girlfriend.mood += 5 
+    $ inventory.attemptUseItem(item_roll)
+    $ girlfriend.wet_legs = False 
+
+    menu OfferPanties:
+
+        "Offer her a clean pair of panties" if item_panties in inventory:
+            call giveDryPanties() from _call_giveDryPanties_1
+
+        "Continue...":
+            call updateTimeAndStats() from _call_updateTimeAndStats_34
+
+    return 
+
+label giveDryPanties():
+
+    girlfriend "Where did you get those?"
+    "She slips into the clean panties with a smile."
+    $ inventory.attemptUseItem(item_panties)
+    $ girlfriend.panty_colour_name = "sexy"
+
+    if (girlfriend.wet_legs):
+        "Her still dripping pussy dampens the crotch of the new panties."
+    else:
+        $ girlfriend.mood += 5
+    $ girlfriend.wet_legs = False 
+
+    menu:
+        "Continue...":
+            call updateTimeAndStats() from _call_updateTimeAndStats_39
+
+    return 

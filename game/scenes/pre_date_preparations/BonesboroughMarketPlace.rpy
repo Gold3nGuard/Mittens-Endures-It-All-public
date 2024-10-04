@@ -81,7 +81,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] shot glasses were purchased for $[item_shot.cost * quantityPurchased]."
 
-        "(Doesn't do much yet) A roll of paper towels ($[item_roll.cost])":
+        "A roll of paper towels ($[item_roll.cost])": # Needs further implementation as a container item
             $ quantityPurchased = inventory.attemptPurchaseItem(item_roll)
             call updateTimeAndStats() from _call_updateTimeAndStats_17
             if quantityPurchased == 1:
@@ -89,7 +89,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] rolls of paper towels were purchased for $[item_roll.cost * quantityPurchased]."
 
-        "(Doesn't do much yet) A pair of sexy panties ($[item_panties.cost])":
+        "A pair of sexy panties ($[item_panties.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_panties)
             call updateTimeAndStats() from _call_updateTimeAndStats_18
             if quantityPurchased >= 1:
