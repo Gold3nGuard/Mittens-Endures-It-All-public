@@ -43,7 +43,7 @@ define tubNeedEmer=["{i}She is squirming back and forth, her hand clenched into 
 "{i}She quickly bends backwards, raising her ass, and then falls back down.{/i}"]
 
 define needNeed=["{i}She is resting her hand on her hip and standing bent slightly forward.{/i}", 
-"{i}She runs her hands through her hair.{/i}", 
+"{i}She's constantly looking around, like she's trying to find something. You notice her quickly squeezing her legs together.{/i}", 
 "{i}Her hands are close by her sides, fingers slightly clenched.{/i}", 
 "{i}She brings her hand up to her cheek and rubs it once.{/i}", 
 "{i}She crosses and uncrosses her legs.{/i}", 
@@ -144,14 +144,14 @@ define flirthi=["she's making me hot",
 # is >35.
 
 define respflirtlowcell=[" sounds excited: {b}Thanks!{/b}" , 
-" sounds embarassed: {b}Gee!{/b}", 
+" sounds embarrassed: {b}Gee!{/b}", 
 " giggles: {b}That's so nice.{/b}", 
 " sighs: {b}You're too nice!{/b}", 
 " laughs: {b}How kind of you!{/b}", 
 " gushes: {b}I feel so special{/b}"]
 
 define respflirtlow=[" blushes: {b}Thanks!{/b}" , 
-" looks away embarassed: {b}Gee!{/b}", 
+" looks away embarrassed: {b}Gee!{/b}", 
 " smiles: {b}That's so nice.{/b}", 
 " brings one finger to her lips: {b}You're too nice!{/b}", 
 " laughs: {b}How kind of you!{/b}", 
@@ -160,14 +160,14 @@ define respflirtlow=[" blushes: {b}Thanks!{/b}" ,
 define respflirtmedcell=[" protests: {b}You're making me blush!{/b}", 
 " laughs: {b}You're too much!{/b}", 
 " pouts teasingly: {b}Stop it!{/b}", 
-" gushes: {b}You're embarassing me!{/b}", 
+" gushes: {b}You're embarrassing me!{/b}", 
 " says with mock sincerity: {b}You're too much!{/b}", 
 " scolds: {b}Stop kidding!{/b}"]
 
 define respflirtmed=[" protests: {b}You're making me blush!{/b}", 
 " laughs: {b}You're too much!{/b}", 
 " pouts teasingly: {b}Stop it!{/b}", 
-" covers her eyes: {b}You're embarassing me!{/b}", 
+" covers her eyes: {b}You're embarrassing me!{/b}", 
 " says with mock sincerity: {b}You're too much!{/b}", 
 " touches your arm: {b}Stop kidding!{/b}"]
 
@@ -186,7 +186,7 @@ define respflirtbad=["Hey now! That was uncalled for.",
 "What the?"]
 
 define respfeelup=[" puts her hand on her chest: {b}You're making me hot.{/b}", 
-" squeezes her breasts between her upper arms: {b}Stop it - that's embarassing.{/b}", 
+" squeezes her breasts between her upper arms: {b}Stop it - that's embarrassing.{/b}", 
 " giggles and crosses her legs: {b}You're making me wet!{/b}", 
 " grabs your butt: {b}You're turning me on.{/b}", 
 " laughs and curtseys: {b}Stop trying to get me excited!{/b}", 
@@ -232,8 +232,22 @@ define feelthigh=["I feel her thigh muscles contracting and relaxing as she trie
 # how long she's been controlling herself.
 define drankburst=["without peeing once!", "and they're bursting my bladder!" , "and I've really got to go!", "and my bladder's not that big!" , "and I haven't gone to the bathroom yet!" , "and I'm not a camel!"]
 define surpriseexcl=["You've gotta be kidding!", "Oh come on!" , "What??!?" , "Whaddaya mean??!?" , "No way!?  Really?", "You're joking, right?"]
-define okayforyou=["Okay, since you're asking so nicely.  I'll hold it a little longer." , "Well... okay. I'll control myself if it makes you happy." , "Alright - I'll hold it in for you a little bit longer.", "If you insist - I'll try to hold it a little more." , "Okay.  I'll wait a bit more if that's what you want.", "Fine.  I'll wait a just little longer if you'd like me to."]
-define holdingtime=["I've been holding it for", "I've haven't gone for", "I've had to pee for", "I've already lasted", "My bladder's been filling for", "I've been waiting for"]
+define okayforyou=[
+    "Okay, since you're asking so nicely.  I'll hold it a little longer." , 
+    "Well... okay. I'll control myself if it makes you happy." , 
+    "Alright - I'll hold it in for you a little bit longer.", 
+    "If you insist - I'll try to hold it a little more." , 
+    "Okay.  I'll wait a bit more if that's what you want.", 
+    "Fine.  I'll wait a just little longer if you'd like me to."
+    ]
+define holdingtime=[
+    "I've been holding it for", 
+    "I've haven't gone for", 
+    "I've had to pee for", 
+    "I've already lasted", 
+    "My bladder's been filling for", 
+    "I've been waiting for"
+    ]
 
 # her apologies for asking to go
 define wantHold=["I know you asked me to wait, but...", 
@@ -263,7 +277,8 @@ define tellHold=["No, I don't think you should be allowed to pee just yet.",
 "No, you need to control your urges."]
 
 # Description of her holding her pee just for you
-define sheHoldsForYou=["She needs to pee badly, but she's holding it for me.",
+define sheHoldsForYou=[
+    "She needs to pee badly, but she's holding it for me.",
     "Her bladder is bursting but she's controlling it because I asked her to.",
     "She's desperate to pee, but she's holding it just a little longer at my request.",
     "Her bladder is terribly full, but she's holding it in to please me.",
@@ -275,15 +290,39 @@ define sheHoldsForYou=["She needs to pee badly, but she's holding it for me.",
 #  used by itscomingout()
 #
 
-define outpeelook=["No!  Don't look!","Ugh!  Don't watch me!","Wait!  Don't look at me.","Oh No!  Please don't look!","Oh No! You can't look!","Please don't stare!"]
-define outpeehide=["Please help me hide!","Please don't let anyone watch!","Can you watch out for people coming?","Can you help me hide?","Please don't let anyone look!","Don't let anybody see me!"]
-define outpeectrl=["Ungh! I can't hold it anymore!","Oh God!  I can't control it!","Urgh!  I can't stop it.","Oh! I can't wait any more!","Fuck!","Dammit!"]
-define outpeecome=["It's coming out.","I'm starting.","I'm going to start.","It's coming!","It's starting!","I'm peeing!"]
+define outPeeLook=["No!  Don't look!",
+                    "Ugh!  Don't watch me!",
+                    "Wait!  Don't look at me.",
+                    "Oh No!  Please don't look!",
+                    "Oh No! You can't look!",
+                    "Please don't stare!"
+                    ]
+define outPeeHide=["Please help me hide!",
+                    "Please don't let anyone watch!",
+                    "Can you watch out for people coming?",
+                    "Can you help me hide?",
+                    "Please don't let anyone look!",
+                    "Don't let anybody see me!"
+                    ]
+define outPeeCtrl=["Ungh! I can't hold it anymore!",
+                    "Oh Titan!  I can't control it!",
+                    "Urgh!  I can't stop it.",
+                    "Oh! I can't wait any more!",
+                    "Fuck!",
+                    "Dammit!"
+                    ]
+define outPeeCome=["It's coming out.",
+                    "I'm starting.",
+                    "I'm going to start.",
+                    "It's coming!",
+                    "It's starting!",
+                    "I'm peeing!"
+                    ]
 
 #
 #  She curses
 #
-define curseword=["Dammit!", "Jesus!", "Shit!" , "Fuckit!", "Goddamn!", "Fuckin' A!", "Fuck!"]
+define curseword=["Dammit!", "Oh Titan!", "Shit!" , "Fuckit!", "Bloody Titan!", "Fuckin' A!", "Fuck!"]
 
 #
 #  Names of bar girls and escorts
@@ -307,6 +346,25 @@ define barpeeprivate2=["I'm left to imagine the her finding a stall, carefully c
     "I can just imagine the relief she feels as she pees in the privacy of the toilet.", 
     "I can barely suppress the impulse to hold on to her - to follow her to the toilet where she quickly sits and empties her bladder."]
     
+# //  Descriptions of her peeing out of sight.
+# //  peeprivate is when she's desperate.  peeprivate2 is when she's not.
+define peeprivate = ["You can imagine her panic in the bathroom as she sees the toilet and feels it starting to come out before she even has a chance to peel down her tight jeans",
+    "You visualize her grabbing her crotch through her jeans the moment she sees the toilet and struggling to control it long enough to peel her jeans off",
+    "You can imagine her finally relaxing over the toilet, pee pouring from her crotch for nearly a full minute.",
+    "You can imagine her in front of the toilet, too desperate to even close the door before emptying her overfilled bladder",
+    "You can only guess at her frenzied antics in front of the toilet as her struggling pee hole is finally allowed to relax and her full bladder empties into the toilet.",
+    "You imagine her struggles to control herself just long enough to get her clothing out of the way before she empties her overtaxed bladder into the toilet.",
+]
+define peeprivate2 = ["You are left to imagine the her finding a stall, carefully closing the door and peeling down her tight jeans to use the toilet in private.",
+    "You are left alone with only your imagination of her releasing her pent up pee into the toilet.",
+    "You can only speculate what she's doing in there - Is there a line?  Does she consider the sink?  The floor drain?",
+    "You can only fantasize about her final relief on the toilet - the pee pouring from her naked crotch",
+    "You can just imagine the relief she feels as she pees in the privacy of the toilet.",
+    "You can barely suppress the impulse to hold on to her - to follow her to the toilet where she quickly sits and empties her bladder.",
+]
+
+
+
 #
 # Movie Plots
 #
@@ -388,9 +446,9 @@ define bargirldesc=["The girl tending the bar is really good-looking.",
 
 #
 #  Conversation in the bar has good, medium and bad answers
-#  TODO: I should completely rewrite bar convos. make it a TOH quiz!
+#  TODO later: I should completely rewrite bar convos. make it a TOH quiz!
 define bartalk=["I'll tell you about my family.  Mostly, there's just me and my brother.  The parents are miraculously still together, and still in the same house they bought back in the 60's...",
-    "Man, my work has been keeping me {u}so{/u} busy.",
+    "Man, my work has been keeping me {b}so{/b} busy.",
     "You know, I haven't been dating for quite a while.",
     "The weather has been really nice this week.",
     "Do you have any pets?"]
@@ -714,7 +772,7 @@ define quiplose=["I've never in my life had to go so bad, but I'll try to hold i
 "I {i}can't{/i} wait - but I'm trying as hard as I can.",
 "I'm trying to control it.  I'm trying to control...",
 "I can feel it coming out, but I'm holding as hard as I can.", 
-"God! Don't pee!  Don't pee! Don't pee!", 
+"Titan! Don't pee!  Don't pee! Don't pee!", 
 "It's pulsing! Gotta hold!  Gotta hold!"]
 
 define quipemer=["I'm desperate here, but I'll try to hold on.", 
@@ -739,15 +797,15 @@ define quipurge=["I don't have to go very bad yet.  I can wait.",
 "No problem.  I'll hold it."]
 
 #
-#  She's embarassed she couldn't hold it.
+#  She's embarrassed she couldn't hold it.
 #
 
-define embarQuote=["I'm so embarassed. I just couldn't hold it in.",
+define embarQuote=["I'm so embarrassed. I just couldn't hold it in.",
     "I'm so sorry! I just couldn't control it anymore.",
-    "I'm so embarassed! It just started to come out and I couldn't stop it.",
-    "It's so embarassing. I just couldn't control my bladder.",
+    "I'm so embarrassed! It just started to come out and I couldn't stop it.",
+    "It's so embarrassing. I just couldn't control my bladder.",
     "I'm so sorry! I couldn't hold it any longer.",
-    "I'm so embarassed! I couldn't control myself."]
+    "I'm so embarrassed! I couldn't control myself."]
 
 #
 #  She denies she wet her panties ... sort of
@@ -760,14 +818,14 @@ define spurtDenyQuote = ["Of course not! I'm not a 3 year old.",
     "Nope. Still in control."]
 
 #
-#  She seems embarassed ( she spurted in her panties )
+#  She seems embarrassed ( she spurted in her panties )
 #
-define spurtQuote=["She seems a little embarassed.",
+define spurtQuote=["She seems a little embarrassed.",
     "She seems quieter than usual.",
     "She doesn't seem to be able to look you in the eyes.",
     "She reaches towards her butt.",
     "She seems nervous.",
-    "She looks like she's embarassed about something."]
+    "She looks like she's embarrassed about something."]
 
 
 #
@@ -776,7 +834,7 @@ define spurtQuote=["She seems a little embarassed.",
 
 define sayhero=["You are my {b}hero{/b}!",
 "I thank you, my bladder thanks you, now get outta my way!",
-"Thank {b}god{/b}, I was dying!",
+"Thank {b}Titan{/b}, I was dying!",
 "You the {b}man{b}!",
 "You've saved my life tonight!",
 "Damn you're good!"]
@@ -785,25 +843,29 @@ define sayhero=["You are my {b}hero{/b}!",
 #
 #  She's reminded of the other time she desperately had to pee
 #
-define peestory=["I used to never want to go to the restroom at school, and I'd hold it until I got home, which usually worked okay.  But one day, I was late for the bus and I didn't have a chance to pee in the morning after I got up.  I was {u}so{/u} desperate all day.",
-    "Once my toilet broke and I had to call the plumbers and they took {i}forever{/i} to come.  I was nearly wetting myself when they did finally show up, but I didn't want to say anything.",
-    "One time I got stuck in traffic on the way home from work.  I {u}really{/u} had to pee, but there was nowhere to pull off.",
-    "You know, I once bet my brother I could hold my pee longer than him.",
-    "I really hate those porta-potties they have at fairs.  I remember one time I went to the county fair and I really had to pee, but I didn't want to leave.  I kept wandering around looking for a real restroom, getting more and more desperate.",
-    "In college we used to play a game where they duct taped beers to your hands, and you had to finish the beers before you could go to the bathroom.",
-    "One summer, I was working as a receptionist at an airline office, and everybody else in the office would go out for lunch, leaving me to deal with everything.  I wasn't allowed to leave my desk during lunch hour.  This was usually fine, but I had too much coffee one morning, and I was in big trouble.  I had to pee so bad!",
-    "In school I got a date with this really great guy, and I was so nervous that I'd do something to mess it up, I kept drinking water at dinner in the pauses in the conversation.  By the end of dinner, I really had to pee, but I was too shy to say anything and I didn't want to make us late for the movie.",
-    "I went on a boating trip with some friends on spring break.  We all dressed up in our bikinis, drank a bunch of beer, and teased the guys on the river.  Nobody told us the boat didn't have a restroom.  We all had to pee {i}so{/i} badly, but we were trying to act all cool about it."]
+# define peestory=["I used to never want to go to the restroom at school, and I'd hold it until I got home, which usually worked okay.  But one day, I was late for the bus and I didn't have a chance to pee in the morning after I got up.  I was {b}so{/b} desperate all day.",
+#     "Once my toilet broke and I had to call the plumbers and they took {i}forever{/i} to come.  I was nearly wetting myself when they did finally show up, but I didn't want to say anything.",
+#     "One time I got stuck in traffic on the way home from work.  I {b}really{/b} had to pee, but there was nowhere to pull off.",
+#     "You know, I once bet my brother I could hold my pee longer than him.",
+#     "I really hate those porta-potties they have at fairs.  I remember one time I went to the county fair and I really had to pee, but I didn't want to leave.  I kept wandering around looking for a real restroom, getting more and more desperate.",
+#     "In college we used to play a game where they duct taped beers to your hands, and you had to finish the beers before you could go to the bathroom.",
+#     "One summer, I was working as a receptionist at an airline office, and everybody else in the office would go out for lunch, leaving me to deal with everything.  I wasn't allowed to leave my desk during lunch hour.  This was usually fine, but I had too much coffee one morning, and I was in big trouble.  I had to pee so bad!",
+#     "In school I got a date with this really great guy, and I was so nervous that I'd do something to mess it up, I kept drinking water at dinner in the pauses in the conversation.  By the end of dinner, I really had to pee, but I was too shy to say anything and I didn't want to make us late for the movie.",
+#     "I went on a boating trip with some friends on spring break.  We all dressed up in our bikinis, drank a bunch of beer, and teased the guys on the river.  Nobody told us the boat didn't have a restroom.  We all had to pee {i}so{/i} badly, but we were trying to act all cool about it."]
 
-define peestory2=["I almost made it.  I was walking back home and I just couldn't hold it anymore - I always thought I could just try a little harder and hold it in, but it just started coming out.  There was nothing I could do.  I soaked my panties right outside my front door.",
-    "I tried so hard to hold it without them noticing.  But after a while, I just couldn't control myself - I ended up going out into the backyard away from the plumbers and peeing in a cup.",
-    "I saw all these people pulling off to the side of the road and peeing on the ground behind their cars.  I was about to do the same thing, but then the traffic jam eased up and I made it home.  I might have leaked a little bit into my panties, though.  It was {i}so{/i} hard to from the car to the bathroom without peeing myself.",
-    "I won.  He finally gave up and pulled out his dick and let go - but then I couldn't get my panties down before I started peeing.  I ended up wetting myself right in front of him - with my panties only halfway down.",
-    "I ended up almost wetting myself - I just {u}had{/u} to go.  It got so bad I couldn't walk and hold myself at the same time, so I finally went in one of the portapotties.  It was sooo gross.",
-    "It was {b}so{/b} embarassing.  I finished the beers, but I peed myself right in front of everybody while they were taking the duct tape off.  Never played that game again.",
-    "I kept waiting and waiting for the rest of the crew to come back from lunch, but they were late that day.  And I started thinking I could use the trash can or something, but then when I made it to 1pm and they hadn't come back yet, I started worrying that if I did have to use the trashcan, they'd come back and find me peeing.  But it got so bad I simply had to try it.  I went over to bring the trash can behind my desk, and then everybody came back from lunch.  I nearly lost it completely ... definitely spurted in my panties.",
-    "We went to see the movie, and I just couldn't sit still.  I didn't know what to do.  I felt it almost coming out, but I was trapped in the row of seats.  Luckily, it was dark, so I hiked up the back of my dress and let it out slowly into the cushion.  It was so embarassing, but nobody ever found out.",
-    "Well - finally my friend couldn't hold it anymore, and jumped in the water to pee.  We all ended up peeing in our bikinis in the river."]
+# define peestory2=["I almost made it.  I was walking back home and I just couldn't hold it anymore - I always thought I could just try a little harder and hold it in, but it just started coming out.  There was nothing I could do.  I soaked my panties right outside my front door.",
+#     "I tried so hard to hold it without them noticing.  But after a while, I just couldn't control myself - I ended up going out into the backyard away from the plumbers and peeing in a cup.",
+#     "I saw all these people pulling off to the side of the road and peeing on the ground behind their cars.  I was about to do the same thing, but then the traffic jam eased up and I made it home.  I might have leaked a little bit into my panties, though.  It was {i}so{/i} hard to from the car to the bathroom without peeing myself.",
+#     "I won.  He finally gave up and pulled out his dick and let go - but then I couldn't get my panties down before I started peeing.  I ended up wetting myself right in front of him - with my panties only halfway down.",
+#     "I ended up almost wetting myself - I just {b}had{/b} to go.  It got so bad I couldn't walk and hold myself at the same time, so I finally went in one of the portapotties.  It was sooo gross.",
+#     "It was {b}so{/b} embarrassing.  I finished the beers, but I peed myself right in front of everybody while they were taking the duct tape off.  Never played that game again.",
+#     "I kept waiting and waiting for the rest of the crew to come back from lunch, but they were late that day.  And I started thinking I could use the trash can or something. But then, when I made it to 1pm and they hadn't come back yet, I started worrying that if I did have to use the trashcan, they'd come back and find me peeing.  But it got so bad I simply had to try it.  I went over to bring the trash can behind my desk, and then everybody came back from lunch.  I nearly lost it completely ... definitely spurted in my panties.",
+#     "We went to see the movie, and I just couldn't sit still.  I didn't know what to do.  I felt it almost coming out, but I was trapped in the row of seats.  Luckily, it was dark, so I hiked up the back of my dress and let it out slowly into the cushion.  It was so embarrassing, but nobody ever found out.",
+#     "Well - finally my friend couldn't hold it anymore, and jumped in the water to pee.  We all ended up peeing in our bikinis in the river."]
+
+
+
+
 
 #
 # Walk descriptions
@@ -911,6 +973,17 @@ define predrinkdiureticquotes=["will soon be dying for the toilet.",
 "will soon be unable to wait and pee herself.",
 "will soon be unable to wait and piss herself.",
 "will soon be unable to control her bladder and have an accident."]
+
+# --- Quotes that weren't in previous iterations of the game --- #
+
+define askPeeQuote = [
+    "Do you need to pee?",
+    "Do you need the little witchlet's room?",
+    "Do you need the toilet?",
+    "You're squirming around a lot, do you need to pee?",
+    "You're all squirmy, do you need to use the bathroom?",
+    "Are you about to wet your panties?"
+]
 
 # --- Quotes that require some program variables to be initialized first --- #
 

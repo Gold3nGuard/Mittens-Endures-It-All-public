@@ -1,7 +1,10 @@
-init python:
+init -1 python:
 
     from enum import Enum
-    # Note: Amity starts off rich and shy. Luz starts off poor and bold. Eda and Edric provide good counters to that.
+    # Note: Amity starts off rich and shy. Luz starts off poor and bold. 
+    # This means if you play w/ Amity as the omo victim, Amity will be shy and Luz won't have much money.
+    # If you play w/ Luz as the omo victim, Luz will be bold and Amity has lots of money.
+    # Eda and Edric provide good counters to that.
     class buddyCalledOptions(Enum):
         NOBODY = 0 
         WILLOW = 1 # Willow gives gf an "Aquarion Fruit" (Watermelon)

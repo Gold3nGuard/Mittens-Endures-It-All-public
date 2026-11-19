@@ -4,6 +4,17 @@ init -2 python:
     from enum import Enum
     from math import ceil, floor
     from typing import List, Union
+    import warnings
+
+    # Required for unit tests
+    if __name__ != 'store':
+        from tests.src.Singleton import Singleton
+        from tests.src.Time import Time
+        from tests.src.InventorySystem import Inventory
+        from tests.src.LocationFlags import Location
+
+    # Coding/Enum related constants to eliminate magic numbers
+    EMPTY_BLADDER: int = -1
 
     class PeeUrgencyLevel(Enum):
         """A collection of enums to indicate how badly girlfriend needs to pee
@@ -24,7 +35,8 @@ init -2 python:
             # Displayable stats
             _name (str): 
             _fullname (str): 
-            _mood (int): How willing your girlfriend is to positively react to your advancements.
+            _pet_names (List[str]): 
+            _mood (int): How willing your girlfriend is to positively react to your advancements. Formerly `attraction`
             _shyness (int): How willing your girlfriend is to tell you that she needs to pee.
             _tummy (int): The amount of liquid currently in gf's tummy 
                 which will eventually trickle it's way to her bladder
@@ -44,7 +56,7 @@ init -2 python:
             _flirted_counter (int): How many times have you flirted with gf in the current venue?
                                 Originally `flirtedflag`. Defaults to 0.
             _MAX_FLIRTS (int): The maximum flirtation attempts you're allowed per venue.
-            _restroom_locked (bool): Was the restroom she just tried using locked?
+            _checked_locked_restroom_counter (int): The washroom was locked. How many times has she checked and it was locked each time?
                                 Originally `rrlockedflag`.
             _asked_swim (bool): Did she ask to swim?
             _wet_the_car (bool): Did she soak the car seat?
@@ -65,7 +77,7 @@ init -2 python:
             
             _gotta_go_flag (bool): Has she just asked to use the restroom? Defaults to False. # Indicates whether she's just asked to use the washroom.
             
-            _ask_hold_it_counter (int): Number of times you asked her to hold it since her last pee. Defaults to 0.
+            _ask_hold_it_counter (int): Number of times you asked her to hold it since her last pee. Defaults to 0. Originally `askholditcounter`
             _turns_to_wait_before_asking (int): Indicates how many turns to wait before asking to pee.
                 Originally `waitcounter`. Defaults to 0.
             
@@ -77,12 +89,23 @@ init -2 python:
 
             _peed_outside (bool): Has she peed outside?
 
+            _is_submissive (bool): Is gf submissive tonight? Defaults to False
+            _showed_need (bool): Did she just display her need to pee? Defaults to False
+
+            _tardy_text_sent (bool): Has she texted the fact that you're late yet?
+
+            # What items has gf peed on?
+            _peed_vase (bool): Defaults to False 
+            _peed_shot (bool): Defaults to False
+            _peed_towels (bool): Defaults to False 
+
             # How long ago has it been since she peed and how much has she drank?
             _last_time_peed (Time): 
-            _drank_inventory (Inventory): 
+            drank_inventory (Inventory): 
 
             # Randomness thresholds 
             _bribe_ask_threshold (int): Likelihood she'll hold it if you ask her when desperate
+            _rng (RandomNumberGenerator): 
 
             # Constants (mostly)
             _MOOD_MIN (int): Defaults as 0
@@ -106,7 +129,8 @@ init -2 python:
         # Displayable stats
         _name: str
         _fullname: str
-        _mood: int
+        _pet_names: List[str]
+        _mood: int # Formerly `attraction`
         _shyness: int
         _tummy: int
         _bladder: int
@@ -116,6 +140,7 @@ init -2 python:
         # Options
         _break_the_seal: bool
         _break_seal_modifier: float
+        _is_submissive: bool
 
         # Hidden stats
         _bladder_first_urge: int
@@ -126,7 +151,7 @@ init -2 python:
         _flirted_counter: int = 0 # Originally `flirtedflag`. indicates how many times you've flirted with her at the current venue.
         _MAX_FLIRTS: int = 2 
 
-        _restroom_locked: bool = False # originally `rrlockedflag`
+        _checked_locked_restroom_counter: int = False # originally `rrlockedflag`
         _asked_swim: bool = False  
         _wet_the_car: bool = False  
         _spurted: bool = False # Originally `shespurted`
@@ -160,11 +185,20 @@ init -2 python:
 
         _peed_outside: bool = False   
 
+        _showed_need: bool = False
+
+        _tardy_text_sent: bool = False
+
+        # What items has gf peed on?
+        _peed_vase: bool = False # Originally `peedvase`
+        _peed_shot: bool = False # Originally `peedshot`
+        _peed_towels: bool = False # Originally `peedtowels`
+
         # Variables used for complaining how long ago she's peed 
         # and how much she's drunk
         # TODO: Implement setters and getters and docstrings for all of these attributes!!!
-        _last_time_peed: Time = Time(hour=16,minute=30) # originally `lastpeetime`
-        _drank_inventory: Inventory = Inventory()
+        _last_time_peed: Time = field(default_factory = lambda: Time(hour=16,minute=30)) # originally `lastpeetime`
+        drank_inventory: DrinksTracker = DrinksTracker() 
         
         # Location parameters
         _suggested_location: Location = Location.COVENTION_HALL_PLAY
@@ -173,7 +207,7 @@ init -2 python:
 
         # Randomness thresholds
         _bribe_ask_threshold: int = 90 # Likelihood she'll hold it if you ask her when desperate
-
+        _rng: RandomNumberGenerator = RandomNumberGenerator() # Initializes a replicable rng for gf to use for consistent text history.
 
         # Constants (mostly)
         _MOOD_MIN: int = 0
@@ -192,7 +226,21 @@ init -2 python:
         _FLIRT_LOW_THRESHOLD: int = 100
         _FLIRT_MED_THRESHOLD: int = 80
         _FLIRT_HIGH_THRESHOLD: int = 60
-        
+
+        # Attraction thresholds
+        _ptogetherthreshold = 100 # She'll take you with her to the bathroom.
+        _pnorestroomthreshold = 110 # She'll pee outside of the restroom.
+        _pwatchthreshold = 90 # You can watch her pee in a closed place.
+        _drinkinggamethreshold = 90 # She'll agree to your holding challenge.
+        _photogamethreshold = 90 # She'll play your silly photo game
+        _photogamecthreshold = 100 # She'll play your silly photo game in costume
+        _photogamenthreshold = 110 # She'll play your silly photo game nude
+        _hottubthresh = 90 # She'll strip and go into the hot tub
+        _holditneedthresh = 30 # She'll hold it for need
+        _holditemerthresh = 60 # She'll hold it for emergency
+        _holditlosethresh = 90 # She'll try to hold it for lose
+        _gomakeoutthresh = 40 # She'll go to the makeout spot
+
         # --- Displayable stats --- #
         @property
         def name(self) -> str:
@@ -201,6 +249,12 @@ init -2 python:
         @property
         def fullname(self) -> str:
             return self._fullname
+
+        @property
+        def pet_name(self) -> str:
+            """Returns a pet name from a pre-defined list of pet names"""
+            randInt = renpy.random.randint(1, len(self._pet_names)) - 1
+            return self._pet_names[randInt]
 
         @property
         def mood(self) -> int:
@@ -296,11 +350,11 @@ init -2 python:
 
         #
         @property
-        def restroom_locked(self) -> bool:
-            return self._restroom_locked
-        @restroom_locked.setter
-        def restroom_locked(self, value: bool):
-            self._restroom_locked = value
+        def checked_locked_restroom_counter(self) -> bool:
+            return self._checked_locked_restroom_counter
+        @checked_locked_restroom_counter.setter
+        def checked_locked_restroom_counter(self, value: bool):
+            self._checked_locked_restroom_counter = value
 
         #
         @property
@@ -376,10 +430,10 @@ init -2 python:
            
         # 
         @property
-        def panty_colour_name(self) -> str:
+        def panty_colour_name(self) -> Union[str, None]:
             return self._panty_colour_name
         @panty_colour_name.setter
-        def panty_colour_name(self, value: str):
+        def panty_colour_name(self, value: Union[str, None]):
             self._panty_colour_name = value
             
         #
@@ -493,6 +547,54 @@ init -2 python:
         @peed_outside.setter
         def peed_outside(self, value: bool):
             self._peed_outside = value
+            
+        # This should be a value that initializes with instantiation and shouldn't change after
+        @property
+        def is_submissive(self) -> bool:
+            return self._is_submissive
+        # @is_submissive.setter
+        # def is_submissive(self, value: bool):
+        #     self._is_submissive = value
+            
+        #
+        @property
+        def showed_need(self) -> bool:
+            return self._showed_need
+        @showed_need.setter
+        def showed_need(self, value: bool):
+            self._showed_need = value
+
+        #
+        @property
+        def tardy_text_sent(self) -> bool:
+            return self._tardy_text_sent
+        @tardy_text_sent.setter
+        def tardy_text_sent(self, value: bool):
+            self._tardy_text_sent = value
+
+        #
+        @property
+        def peed_vase(self) -> bool:
+            return self._peed_vase
+        @peed_vase.setter
+        def peed_vase(self, value: bool):
+            self._peed_vase = value
+            
+        #
+        @property
+        def peed_shot(self) -> bool:
+            return self._peed_shot
+        @peed_shot.setter
+        def peed_shot(self, value: bool):
+            self._peed_shot = value
+            
+        #
+        @property
+        def peed_towels(self) -> bool:
+            return self._peed_towels
+        @peed_towels.setter
+        def peed_towels(self, value: bool):
+            self._peed_towels = value
 
         
         # --- Randomness thresholds --- #
@@ -525,11 +627,11 @@ init -2 python:
         def last_time_peed(self, value: Time):
             self._last_time_peed = value
 
-        @property
-        def drank_inventory(self) -> Inventory:
-            return self._drank_inventory
-
         def flush_drank_inventory(self, gametime: Time): 
+            """Formerly flushdrank()
+            Resets all pee counters such as liquids drank and relevant flags/counters
+            Should call pees() instead
+            """
 
             # Derate bladder capacity if she loses it...
             if (self.break_the_seal):
@@ -548,16 +650,14 @@ init -2 python:
             self.turns_to_wait_before_asking = 0
             self.gotta_go_flag = False 
             self.pre_peed = True 
-            self.last_time_peed = gametime
+            self.last_time_peed = gametime.copy()
             self.spurted = False 
             self.bribe_ask_threshold = 90
 
 
             # Remove all liquids drank
             # Check for amount_girlfriend_drank == 0 when generating dialogue!
-            for key in self._drank_inventory.items:
-                self._drank_inventory.items[key].amount_girlfriend_drank = 0
-
+            self.drank_inventory.reset()
 
         # --- Bladder urgency levels getters --- #
         @property
@@ -607,8 +707,25 @@ init -2 python:
             else:
                 ValueError(f"How the heck did you get a negative bladder value? {self.bladder =} mL")
 
+        @property
+        def moodGreaterThanUrge(self) -> bool:
+
+            if (((self.peeUrgencyLevel.value >= PeeUrgencyLevel.BLADDER_LOSE.value) and 
+            (self.mood > self._holditlosethresh))
+            or 
+            ((self.peeUrgencyLevel.value >= PeeUrgencyLevel.BLADDER_EMERGENCY.value) and 
+            (self.mood > self._holditemerthresh))
+            or
+            ((self.peeUrgencyLevel.value >= PeeUrgencyLevel.BLADDER_NEED.value) and 
+            (self.mood > self._holditneedthresh))
+            ):
+                return True
+            else:
+                return False
+
         def stats_summary(self) -> str:
             """Outputs your girlfriend's relevant stats for the game. 
+            TODO: Add option to hide specific stats (not all)
             """
             output_string: str = f"Girlfriend: {self.name}\n"
             output_string += f"Mood: {self.mood}\n"
@@ -617,6 +734,10 @@ init -2 python:
             output_string += f"Bladder: {self.bladder}\n"
             output_string += f"Diuretic Level: {self.diuretic_level}\n"
             output_string += f"Bladder Filling Rate: {self.bladder_filling_rate}"
+            # # Display flags for debugging:
+            # output_string += f"\nGotta Go Flag: {self.gotta_go_flag}"
+            # output_string += f"\nShowed Need Flag: {self.showed_need}"
+            # output_string += f"\nAsk Hold It Counter: {self.ask_hold_it_counter}"
             return output_string
 
         def transfer_tummy_to_bladder(self, amount):
@@ -668,7 +789,11 @@ init -2 python:
             elif (self.diuretic_level > 0):
                 self.diuretic_level -= 1
 
-        def pees(self, gametime: Time, amount: int = -1):
+        def pees(
+            self, 
+            gametime: Time, 
+            amount: int = EMPTY_BLADDER,
+            ):
             """Girlfriend empties her bladder.
 
             Args:
@@ -676,15 +801,56 @@ init -2 python:
                     Defaults to -1, which allows girlfriend to fully void her bladder.
             """
 
-            if amount == -1:
-
-                self._bladder = 0 
+            if amount == EMPTY_BLADDER:
+                self.bladder = 0 
                 self.flush_drank_inventory(gametime)
             elif amount < 0:
                 raise ValueError(f"amount cannot be negative. {amount=}")
-            else:
-                self._bladder -= amount
+            elif amount > self.bladder:
+                warnings.warn(f"Girlfriend cannot pee an amount greater than what's currently in her bladder. Default behaviour triggered is to completely void her bladder.")
+            else: # Intended for spurts
+                self.bladder -= amount
 
         def timeHeld(self, currentTime: Time) -> timedelta:
-            """Returns how long ago girlfriend had her last pee."""
+            """
+            Returns how long ago girlfriend had her last pee.
+            Note: Returned type is timedelta, must intepret to hours 
+            by casting to total seconds and dividing by 3600
+            """
             return currentTime - self._last_time_peed
+
+        def timeSinceLastPee(self, currentTime: Time) -> str:
+            """Returns dialogue of gf complaining about how long it's been since her last pee
+
+            Args:
+                currentTime (Time): The current gametime
+
+            Returns (str): Dialogue of gf complaining about how long it's been since her last pee
+            """
+
+            # Formerly `timewaited`
+            time_waited_text = ""
+
+            # Calculate how many half hours gf has waited
+            SECONDS_IN_HALF_HOUR = 3600 / 2
+            half_hours_waited = floor(self.timeHeld(currentTime).total_seconds() / SECONDS_IN_HALF_HOUR)
+            
+            if (half_hours_waited > 1 and self.pre_peed):
+                time_waited_text += str(floor(half_hours_waited / 2))
+                if (half_hours_waited % 2 == 1 and self.pre_peed):
+                    time_waited_text += " and a half hours"
+                elif (half_hours_waited == 2 and self.pre_peed):
+                    time_waited_text += " whole hour"
+                else:
+                    time_waited_text += " hours"
+            elif (half_hours_waited == 1 and self.pre_peed):
+                time_waited_text = " half an hour"
+
+            if (half_hours_waited > 1 and self.pre_peed):
+                randInt = renpy.random.randint(0,5)
+                return f"{holdingtime[randInt]} {time_waited_text}!"
+            elif not(self.pre_peed):
+                self.pre_peed = True
+                return "I've last been to the toilet several hours ago."
+            else:
+                return "I think my bladder's been weakened!"

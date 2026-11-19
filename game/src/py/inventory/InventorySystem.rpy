@@ -1,8 +1,17 @@
-init -3 python:
+init -5 python:
 
-    from typing import Dict
+    from abc import ABC, abstractmethod
+    from typing import TypedDict
     from enum import Enum
+    from dataclasses import dataclass, field
+    from typing import ClassVar
+    import warnings
 
+    # Required for unit tests
+    if __name__ != 'store':
+        from tests.src.Time import Time
+
+    # Place abstract and tracker inventories here
     class RemoveItemConfirmationState(Enum):
         """A set of enums that indicates why an item may not have been consumed.
         """
@@ -11,59 +20,69 @@ init -3 python:
         GIRLFRIEND_REFUSED_CONSUMPTION = 2
         ITEM_NOT_IN_INVENTORY = 3
         ITEM_CAN_BE_REUSED = 4
+        NOT_ENOUGH_OF_ITEM_TO_REMOVE = 5
+        ITEM_REMOVED_SUCCESSFULLY = 6
 
+    class PurchaseFailedState(Enum):
+        """A set of enums that indicate why an item wasn't purchased.
+        """
+        NOT_ENOUGH_SNAILS = -1
 
-    class ItemNotInInventoryError(ValueError):
-        pass
+    @dataclass(frozen=True, kw_only=True)
+    class InventoryItem(ABC):
+        """Abstract base class for inventory items
+        
+        Args:
+            _name (str): 
+            _description (str): 
+            _cost (int): 
+            _remove_upon_use (bool): 
+        """
 
-    class Inventory():
+        # _instances: ClassVar[dict] = {}
+
+        # # Do not instantiate the following abstract classes
+        # def __new__(cls, *args, **kwargs):
+        #     if cls is InventoryItem or \
+        #     cls is ConsumableLiquid or \
+        #     cls is MoodAlteringItem or \
+        #     cls is LiquidContainerItem or \
+        #     cls is Keys:
+        #         raise TypeError(f"{cls} is an abstract class. It cannot be instantiated!")
+        #     else:
+        #         print(cls)
+        #         return object.__new__(cls, *args, **kwargs)
+
+        # Attributes for all items
+        name: str
+        plural_name: str
+        description: str
+        cost: int
+        remove_upon_use: bool 
+
+        @abstractmethod
+        def use_item(
+            self, 
+            girlfriend = None, 
+            gametime: Time | None = None, 
+            **kwargs
+            ) -> bool:
+            """Tells the game what happens after you use the item. 
+            This is an abstract method intended to be implemented by concrete classes.
+            """
+            pass
+
+    class AbstractInventory(ABC):
         """A class to manage the in-game inventory system
+        TODO: I need to restructure this class! 
+        Make an AbstractInventory class with children:
+        - ItemsInventory for all items the main character obtains and interacts with (only one should be instantiated for the main character)
+        - DrinksInventory for liquids that are consumed by both main character and gf (two of these should be created)
+        and make ItemsInventory backwards compatible with everything I've written so far LOL.
         """
 
         def __init__(self):
-            """
-            _items (Dict[str, InventoryItem]): The items that are currently in the inventory. Initializes to {}
-            _snails (int): The currency system used in the Boiling Isles.
-            _snails_confirmation_msg (str): A message to describe how a purchase was successful, if it was. May be deprecated in future.
-            _is_purchase_valid (bool): 
-            """
-
-            self._items: Dict[str, InventoryItem] = {}
-            self._snails: int = 150
-            # self._snails: int = 2000
-            self._snails_confirmation_msg: str = ""
-            self._is_purchase_valid: bool = False
-
-        def list_items(self, withNewlines: bool = False) -> str: 
-            """Lists the items in the inventory in text form.
-            """
-            newlines = "\n" if withNewlines else ""
-            if self._items == {}:
-                output_string = "I'm not carrying anything" 
-            else:
-                output_string = ""
-                for item in self._items:
-                    output_string = output_string + item + f": {self._items[item].quantity_in_inventory}, " + newlines
-                output_string = output_string.strip(", \n")
-
-            return output_string
-
-        def list_drank(self, withNewlines: bool = False) -> str:
-            """Lists the items your girlfriend has drank since she last peed.
-            """
-            newlines = "\n" if withNewlines else ""
-            if self._items == {}:
-                output_string = "I'm not carrying anything" 
-            else:
-                output_string = ""
-                for item in self._items:
-                    output_string = output_string + item + f": {self._items[item].amount_girlfriend_drank}, " + newlines
-                output_string = output_string.strip(", \n")
-
-            return output_string
-
-        def __str__(self) -> str:
-            return self.list_items()
+            self.items: dict[InventoryItem, int] = {}
 
         def __contains__(self, item: InventoryItem) -> bool:
             """Checks if the item is in the inventory
@@ -74,257 +93,106 @@ init -3 python:
             Returns:
                 bool: Returns true if the item was found in the inventory
             """
-            for i in self._items:
-                if i == item.name:
-                    return True 
-            return False
+            return item in self.items and self.items[item] > 0
 
-        @property
-        def hasUniversalConsumableLiquid(self) -> bool:
-            """Check if inventory has any universal ConsumableLiquids
+        def __repr__(self):
+            return f"{type(self).__name__}(items={self.items})"
 
-            Return:
-                bool: Returns true if there is a universal consumable liquid in the inventory
+        def list_items(self, withNewlines: bool = False) -> str: 
+            """Lists the items in the inventory in text form.
             """
-            for key in self._items:
-                if isinstance(self._items[key], ConsumableLiquid):
-                    if self._items[key].show_in_all_relevant_choice_menus:
-                        return True 
-            return False
-
-        @property
-        def hasMoodAlteringItem(self) -> bool:
-            """Check if inventory has any universal ConsumableLiquids
-
-            Return:
-                bool: Returns true if there is a universal consumable liquid in the inventory
-            """
-            for key in self._items:
-                if isinstance(self._items[key], MoodAlteringItem):
-                    return True 
-            return False
-
-        @property
-        def items(self) -> Dict:
-            return self._items
-
-        # @items.setter
-        # def items(self, value) -> bool:
-        #     """Item setter method for transaction validation.
-        #     """
-        #     self._items = value
-        #     return True
-
-        @property
-        def snails(self) -> int:
-            return self._snails
-
-        @snails.setter
-        def snails(self, value):
-
-            self.reset_snails_conf_msg()
-            self._is_purchase_valid = False
-
-            if value < 0:
-                msg = "Transaction unsuccessful, not enough snails!" 
-                self._is_purchase_valid = False
-            elif value > 999999:
-                msg = "Not enough room in wallet to hold all these snails!"
-                self._is_purchase_valid = False
+            newlines = "\n" if withNewlines else ""
+            if self.items == {}:
+                output_string = "I'm not carrying anything" 
             else:
-                self._snails = value
-                msg = "Transaction successful!"
-                self._is_purchase_valid = True
-            
-            self._snails_confirmation_msg = msg
+                output_string = ""
+                for item in self.items:
+                    output_string = output_string + item.name + f": {self.items[item]}, " + newlines
+                output_string = output_string.strip(", \n")
 
-        @property
-        def snails_confirmation_msg(self) -> str:
-            return self._snails_confirmation_msg
+            return output_string
         
-        @snails_confirmation_msg.setter
-        def snails_confirmation_msg(self, value):
-            self._snails_confirmation_msg = value 
-
-        def reset_snails_conf_msg(self):
-            self._snails_confirmation_msg = ""
-
-        @property
-        def is_purchase_valid(self) -> bool:
-            return self._is_purchase_valid
-
-        @is_purchase_valid.setter
-        def is_purchase_valid(self, value: bool):
-            self._is_purchase_valid = value
-
-        @property
-        def consumableLiquidsUniversalMenuChoices(self) -> list:
-            """Returns a list of consumable liquids in your inventory to use in relevant menus.
-            """
-            choices = []
-            for key in self._items:
-                print(key)
-                item = self._items[key]
-                if isinstance(item, ConsumableLiquid) and item.show_in_all_relevant_choice_menus:
-                    choices.append(item.menu_option_text)
-            return choices
-
+        def __str__(self) -> str:
+            return self.list_items()
+    
 
         # ===== Inventory management methods ===== #
 
-        def __add_item(self, item: InventoryItem, quantity: int):
+        def _add_item(
+            self, 
+            item: InventoryItem, 
+            quantity: int = 1,
+            ):
             """Adds the item to the inventory.
 
             Args:
                 item (InventoryItem): The item to add to your inventory.
                 quantity (int): The quantity of the item to add to your inventory.
-                girlfriendDrank (bool): Indicates whether item was added to girlfriend's drank inventory.
             """
 
-            # If an identical item is not already in the inventory, then add the item as a new item to the inventory
-            if item not in self:
-                self._items[item.name] = item
-                self._items[item.name].quantity_in_inventory = 0
+            if quantity < 0:
+                warnings.warn(message="quantity must be non-negative")
+                return
+            elif quantity == 0:
+                # Do nothing if nothing is added
+                return
 
-            # Increment the quantity of that item in the inventory
-            self._items[item.name].quantity_in_inventory += quantity
-
-        def girlfriend_drank_item(self, item: InventoryItem):
-            """Adds the item to girlfriend's drank inventory tracker. 
-            Which tracks which liquids your gf has drank since her last pee,
-            and how much.
-            
-            Args:
-                item (InventoryItem): The item to add to your inventory.
-            """
-            # If an identical item is not already in the inventory, then add the item as a new item to the inventory
-            if item not in self:
-                self._items[item.name] = item
-                self._items[item.name].amount_girlfriend_drank = 0
-
-            # Increment the quantity of that item in the inventory
-            self._items[item.name].amount_girlfriend_drank += 1
-
-
-        def add_item_without_purchase(self, item: InventoryItem, quantity: int = 1):
-            """Adds the item to the inventory without purchasing. Meant to be used in debug mode only!
-
-            Actually, some items (like keys) can be added without purchasing. But those should have a cost of 0.
-            """
-
-            self.__add_item(item, quantity)
-
-
-        def attemptPurchaseItem(self, item: InventoryItem) -> int:
-            """Attempts to purchase the item and add it to the inventory
-
-            Args:
-                item (InventoryItem): The item you're attempting to purtchase.
-
-            bool: Returns the quantity purchased. Returns -1 if purchase was unsuccessful.
-            """
-
-            # Ask for a quantity prompt
-            quantity: int = int(renpy.input(prompt=f"How many {item.plural_name} do you want to purchase?", default="1", allow="0123456789", length=16))
-
-            # This statement should properly update self.is_purchase_valid in the self.snails setter
-            self.snails -= item.cost * quantity
-
-            # If the purchase was valid, add the item to the inventory
-            if self.is_purchase_valid:
-                self.__add_item(item, quantity)
+            if item in self:
+                self.items[item] += quantity
             else:
-                quantity = -1 
-
-            return quantity
+                self.items[item] = quantity
 
 
-        def __remove_item(self, item: InventoryItem) -> bool:
-            """Removes one copy of the item from the inventory if it exists in the inventory.
+        def _remove_item(
+            self, 
+            item: InventoryItem, 
+            quantity: int = 1,
+            ) -> RemoveItemConfirmationState:
+            """
+            Attempts to remove some quantity of item from the inventory
 
             Args:
                 item (InventoryItem): The item to remove from inventory
+                quantity (int): The amount of item to remove from inventory
             
-            bool: Returns a bool to indicate whether the item was removed
+            RemoveItemConfirmationState: Returns a state indicating a successful removal, 
+            or reason why removal was not possible
             """
 
-            # Check if item is in inventory
-            if item in self:
-
-                # Then remove one copy of it
-                item.quantity_in_inventory -= 1
-
-                # If no more of the item remains, remove it from inventory
-                if item.quantity_in_inventory <= 0:
-                    self._items.pop(item.name)
-                    
-                # Indicate that the item was removed
-                return True
-
-            # Indicate that item was not found in the inventory, and thus not removed
-            else: 
-                return False
-
-
-        def attemptUseItem(self, item: InventoryItem, girlfriend: Girlfriend = None) -> RemoveItemConfirmationState:
-            """Attempts to use the item
-
-            Args:
-                item (InventoryItem): The item to use
-                girlfriend (Girlfriend): girlfriend that item use might affect. Defaults to None
-            
-            RemoveItemConfirmationState: Returns an enum that tells the program what happened to the item and how to react.
-            """
-
-            # Define local variables
-            confirmation_state: RemoveItemConfirmationState = RemoveItemConfirmationState.NO_STATE_GIVEN_CHECK_CODE
-            item_used: bool = False
-
-            # Check if item is in inventory
-            if item in self:
-
-                # Figure out type of item and use accordingly
-
-                # For consumable liquids
-                if isinstance(item, ConsumableLiquid):
-                    if girlfriend is None:
-                        raise ValueError("`girlfriend` needs to be specified when using Consumable Liquids.")
-                    else:
-                        # TODO: Implement the use of the consumable liquid here
-                        item_used: bool = item.use_item(girlfriend)
-
-                # For mood altering items
-                elif isinstance(item, MoodAlteringItem):
-                    if girlfriend is None:
-                        raise ValueError("`girlfriend` needs to be specified when using Consumable Liquids.")
-                    else:
-                        # TODO: Implement the use of the consumable liquid here
-                        item_used: bool = item.use_item(girlfriend)
+            # Check if item is in the inventory
+            if item not in self:
+                warnings.warn(message=f"{item.name} not found in inventory!")
+                return RemoveItemConfirmationState.ITEM_NOT_IN_INVENTORY
                 
-                else:
-                    # TODO: Implement the use of other items with elif!
-                    item_used: bool = item.use_item(girlfriend)
+            # Check if there's enough of item to remove
+            if quantity > self.items[item]:
+                warnings.warn(message=f"Not enough {item.name} in inventory to remove!")
+                return RemoveItemConfirmationState.NOT_ENOUGH_OF_ITEM_TO_REMOVE
 
+            # Decrease quantity if not reusable
+            if item.remove_upon_use:
+                self.items[item] -= quantity
 
-                # Check if item was successfully used, remove it, then update the confirmation state
-                if item_used:
-                    if item.remove_upon_use:
-                        # Update confirmation state
-                        confirmation_state = RemoveItemConfirmationState.ITEM_CONSUMED_SUCCESSFULLY
-                        successfully_removed = self.__remove_item(item)
-                        if not successfully_removed:
-                            raise ValueError(f"{item.name} was not removed from the inventory. Check the Inventory.__remove_item() method")
-                    else:
-                        # Don't remove item if it's reusable
-                        # TODO: Test this when I implement LiquidContainerItem's better
-                        confirmation_state = RemoveItemConfirmationState.ITEM_CAN_BE_REUSED
-                else: 
-                    confirmation_state = RemoveItemConfirmationState.GIRLFRIEND_REFUSED_CONSUMPTION
+            # Remove from inventory if none left
+            if self.items[item] <= 0:
+                self.items.pop(item)
 
-            # If item not in inventory, update confirmation state
-            else:
-                confirmation_state = RemoveItemConfirmationState.ITEM_NOT_IN_INVENTORY
+            return RemoveItemConfirmationState.ITEM_REMOVED_SUCCESSFULLY
 
-            return confirmation_state
+    class DrinksTracker(AbstractInventory): 
 
-                  
+        def add_drink(self, drink: InventoryItem, quantity: int = 1):
+            self._add_item(item=drink, quantity=quantity)
+
+        def list_drinks(self):
+            drinks_list = []
+            for drink, amount in self.items.items():
+                if amount == 1:
+                    drinks_list.append(f"{amount} {drink.name}")
+                elif amount > 1:
+                    drinks_list.append(f"{amount} {drink.plural_name}")
+            drinks_list_str = ", ".join(drinks_list)
+            return drinks_list_str
+            
+        def reset(self): # girlfriend.pees() should call this method!!!
+            self.items.clear()

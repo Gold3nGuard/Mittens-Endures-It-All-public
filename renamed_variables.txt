@@ -1,0 +1,15 @@
+This file contains a list of variables that I decided to rename compared to the code 
+in "Melissa Endures it All - Biku" created by 
+
+`randcounter` has been renamed to `randInt`
+    This variable randomly chooses a quote from a list of quotes.
+
+`waitcounter` has been renamed to `turns_to_wait_before_asking`
+    This variable indicates how many turns your gf will wait before asking
+    to use the washroom again.
+
+`locstack` has been renamed to `currentLocation`
+    This variable indicates what the current location is.
+
+`showedneed` is only used once in the original and doesn't look important to me, 
+    so i decided not to implement it in my code

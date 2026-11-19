@@ -23,7 +23,7 @@ define gui.show_name = True
 
 ## The version of the game.
 
-define config.version = "v0.1.1"
+define config.version = "v0.2.4"
 
 
 ## Text that is placed on the game's about screen. Place the text between the
@@ -207,3 +207,9 @@ init python:
 ## by a slash.
 
 # define build.itch_project = "renpytom/test-project"
+
+# Mittens Endures It All - Custom options
+define config.developer = True # set to false during releases
+
+## for testing
+define config.lint_hooks = [main_lint_hook]

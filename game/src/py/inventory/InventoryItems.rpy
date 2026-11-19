@@ -1,135 +1,41 @@
 init -4 python:
-    # from abc import ABC, abstractmethod
-    from abc import abstractmethod
+
+    from abc import ABC
     from dataclasses import dataclass
-    class Girlfriend: pass # Forward declare the Girlfriend class for type hinting.
+    import warnings
+    from enum import Enum, auto
 
-    # # Initialize logging
-    # import logging
-    # logger = logging.getLogger("InventoryItems.rpy")
-    # import os
-    # from pathlib import Path
-    # import logging 
-    # logger = logging.getLogger("InventoryItems.py")
-    # logfile: str = f"{os.getcwd()}/logs/InventoryItems.log"
-    # logdir: str = logfile.rsplit('/', 1)[0]
-    # Path(logdir).mkdir(parents=True, exist_ok=True)
-    # if not os.path.exists(logfile):
-    #     with open(logfile, "w"):
-    #         pass
-    # logging.basicConfig(filename=logfile, level=logging.INFO, format="[%(asctime)s] %(levelname)s: %(name)s %(message)s")
+    # Required for unit testing
+    if __name__ != 'store':
+        from tests.src.Time import Time
+        from tests.src.InventorySystem import InventoryItem
 
-    # class Singleton(type, ABC):
-    #     """Prevent multiple instantiations of each item type"""
+    class Girlfriend: pass
 
-    #     # Store single instances of each class
-    #     _instances = {}
-
-    #     def __call__(cls, *args, **kwargs):
-    #         # If class hasn't been instantiated yet, we may instantiate it and then store it in Singleton.
-    #         if cls not in cls._instances:
-    #             cls._instances[cls] = super().__call__(*args, **kwargs)
-    #         # Otherwise, send a warning that a singleton class attempted to instantiate more than once
-    #         else:
-    #             logger.warning(f"Attempted to instantiate another instance of {cls}. {cls} has already been instantiated!")
-    #             print(f"Attempted to instantiate another instance of {cls}. {cls} has already been instantiated!")
-    #         # Return the stored class
-    #         return cls._instances[cls]
-
-
-    class InventoryItem(metaclass = Singleton):
-        """Abstract base class for inventory items
-        
-        Args:
-            _name (str): 
-            _description (str): 
-            _cost (int): 
-            _quantity_in_inventory (int): 
-            _remove_upon_use (bool): 
-        """
-
-        _instances = {}
-
-        # Do not instantiate the following abstract classes
-        def __new__(cls, *args, **kwargs):
-            if cls is InventoryItem or \
-            cls is ConsumableLiquid or \
-            cls is MoodAlteringItem or \
-            cls is LiquidContainerItem or \
-            cls is Keys:
-                raise TypeError(f"{cls} is an abstract class. It cannot be instantiated!")
-            else:
-                return object.__new__(cls, *args, **kwargs)
-
-        # Attributes for all items
-        _name: str
-        _plural_name: str
-        _description: str
-        _cost: int
-        _quantity_in_inventory: int
-
-        # Getters and setters
-        @property
-        def name(self):
-            return self._name
-
-        @property
-        def plural_name(self):
-            return self._plural_name
-
-        @property
-        def description(self):
-            return self._description
-
-        @property
-        def cost(self):
-            return self._cost
-
-        @property
-        def quantity_in_inventory(self) -> int:
-            return self._quantity_in_inventory
-
-        @property 
-        def remove_upon_use(self) -> bool:
-            return True         
-
-        @quantity_in_inventory.setter
-        def quantity_in_inventory(self, value: int):
-            self._quantity_in_inventory = value
-
-        @abstractmethod
-        def use_item(self, girlfriend: Girlfriend, **kwargs) -> bool:
-            """Tells the game what happens after you use the item. 
-            This is an abstract method intended to be implemented by concrete classes.
-            """
-            pass
-
-
-    class ConsumableLiquid(InventoryItem):
+    @dataclass(frozen=True,kw_only=True)
+    class ConsumableLiquid(InventoryItem, ABC):
         """Abstract base class for consumable liquids
         
         Args:
-            _volume (int): 
-            _menu_option_text (str): The text to display as an option in menus
-            _diuretic_level (int): Defaults as 0
+            volume (int): The volume of the liquid in mL.
+            _menu_option_text (str): The text to display as an option in menus.
+            _diuretic_level (int): Defaults as 0.
             _show_in_all_relevant_choice_menus (bool): Indicates whether this item should be displayed in all 
                     relevant choice menus that offer use of consumable liquids. 
                     Defaults as True. # Only False for Artisan Grape Blood
             _consumption_confirmation_response (str): The response your girlfriend gives after consuming the item. 
                     Defaults as "Hmm, refreshing!"
-            _amount_girlfriend_drank (int): Amount of the liquid that your girlfriend drank. Defaults to 0.
         """
 
-        _volume: int
-        _menu_option_text: str
+        volume: int
+        _menu_option_text: str = ""
         _diuretic_level: int = 0
         _show_in_all_relevant_choice_menus: bool = True # Only False for Artisan Grape Blood
         _consumption_confirmation_response: str = "Hmm, refreshing!"
-        _amount_girlfriend_drank: int = 0
 
         @property
         def volume(self):
-            return self._volume
+            return self.volume
 
         @property
         def diuretic_level(self):
@@ -147,30 +53,20 @@ init -4 python:
         def show_in_all_relevant_choice_menus(self) -> bool:
             return self._show_in_all_relevant_choice_menus
 
-        @property
-        def amount_girlfriend_drank(self) -> int:
-            return self._amount_girlfriend_drank
-
-        @amount_girlfriend_drank.setter 
-        def amount_girlfriend_drank(self, value: int):
-            if value >= 0:
-                self._amount_girlfriend_drank = value
-            else:
-                raise ValueError("Quantity drank cannot be zero!")
-
-        def use_item(self, girlfriend: Girlfriend) -> bool:
+        def use_item(self, girlfriend: Girlfriend | None = None, gametime: Time | None = None, **kwargs) -> bool:
             """Upon use of item, add the liquid to her tummy and increase diuretic level if appropriate.
             """
+            if girlfriend is None: warnings.warn("`girlfriend` must be defined in ConsumableLiquid.use_item()")
             if girlfriend.tummy <= girlfriend.tummy_capacity:
-                girlfriend.tummy += self._volume
+                girlfriend.tummy += self.volume
                 girlfriend.diuretic_level += self._diuretic_level
-                girlfriend.drank_inventory.girlfriend_drank_item(item = self)
+                girlfriend.drank_inventory.add_drink(drink=self, quantity=1)
                 return True
             else:
                 return False
 
-
-    class MoodAlteringItem(InventoryItem):
+    @dataclass(frozen=True,kw_only=True)
+    class MoodAlteringItem(InventoryItem, ABC):
         """Abstract base class for items that alter your girlfriend's mood or shyness
         
         Args:
@@ -210,7 +106,8 @@ init -4 python:
         def bribery_response(self) -> str:
             return self._bribery_response
 
-        def use_item(self, girlfriend: Girlfriend) -> bool:
+        def use_item(self, girlfriend: Girlfriend | None = None, gametime: Time | None = None, **kwargs) -> bool:
+            if girlfriend is None: warnings.warn("`girlfriend` must be defined in MoodAlteringItem.use_item()")
             if (girlfriend.bladder < girlfriend.bladder_emergency):
                 girlfriend.mood += self._delta_mood
                 girlfriend.shyness += self._delta_shyness
@@ -220,7 +117,8 @@ init -4 python:
                 girlfriend.turns_to_wait_before_asking = self._turns_to_wait_after_use
             return True
 
-    class LiquidContainerItem(InventoryItem):
+    @dataclass(frozen=True,kw_only=True)
+    class LiquidContainerItem(InventoryItem, ABC):
         """Abstract base class for items that can contain liquids (i.e. urine)"""
         _capacity: int
         _gf_peed_in_previously: bool = False # Has gf previously peed in this container?
@@ -237,135 +135,234 @@ init -4 python:
         def remove_upon_use(self) -> bool:
             return False 
 
-    class Keys(InventoryItem):
+        def use_item(self, girlfriend: Girlfriend | None = None, gametime: Time | None = None, **kwargs) -> bool:
+            """Upon use of item, girlfriend pees a little bit into the container (decreases bladder)
+            """
+            if girlfriend is None or gametime is None: warnings.warn("Both `girlfriend` and `gametime` must be defined in LiquidContainerItem.use_item()")
+            if gametime is not None:
+                # NOTICE: To have gf pee in container, you MUST provide the current `gametime`
+                # Assume that gametime = None means we are using paper towels to wipe. 
+                # Otherwise, we must include the `gametime`
+                if (self._capacity >= girlfriend.bladder):
+                    girlfriend.flush_drank_inventory(gametime)
+                else:
+                    girlfriend.bladder -= self._capacity
+
+            return True
+
+
+    class Door(Enum):
+        COVENTION_HALL_PLAY = auto()
+        GRIMGRUBS_PUB = auto()
+        NIGHTCLUB_DANCE_VENUE = auto()
+
+    @dataclass(frozen=True,kw_only=True)
+    class Keys(InventoryItem, ABC):
         """Abstract base class for keys, which can open locked doors"""
-        _door_id: str 
+        door_id: Door 
+        cost: int = 0
+        remove_upon_use: bool = False
 
-        def open_door(self, door: str) -> bool:
-            return self._door_id == door
+        def open_door(self, door: Door) -> bool:
+            """
+            Returns true if this key is able to open the door.
+            """
+            return self.door_id == door
 
-
+        
     # ===== Concrete definition of in-game items ===== #
 
     # --- Bonesborough Marketplace Items --- #
 
+    @dataclass(frozen=True)
     class Water(ConsumableLiquid):
         """Increases tummy
         """
-        _name = "Water"
-        _plural_name = "bottles of water"
-        _volume = 500
-        _description = f"A {_volume}mL bottle of water"
-        _cost = 5
-        _menu_option_text = "Give her a bottle of water."
+        name: str = "Water"
+        plural_name: str = "bottles of water"
+        volume: int = 500
+        description: str = f"A {volume}mL bottle of water"
+        cost: int = 5
+        _menu_option_text: str = "Give her a bottle of water."
+        remove_upon_use: bool = True
 
 
+    @dataclass(frozen=True)
     class WaterWithDiuretic(ConsumableLiquid):
         """Increases tummy and diuretic level
         """
-        _name = "Water With Diuretic"
-        _plural_name = "bottles of diuretic laced water"
-        _volume = 500
-        _description = f"A {_volume}mL bottle of water with some diuretic mixed in"
-        _diuretic_level = 200
-        _cost = 40
-        _menu_option_text = "Give her a bottle of water with the diuretic."
+        name: str = "Water With Diuretic"
+        plural_name: str = "bottles of diuretic laced water"
+        volume: int = 500
+        description: str = f"A {volume}mL bottle of water with some diuretic mixed in"
+        _diuretic_level: int = 200
+        cost: int = 40
+        remove_upon_use: bool = True
+        _menu_option_text: str = "Give her a bottle of water with the diuretic."
 
 
+    @dataclass(frozen=True)
     class HotBrownMorningPotion(ConsumableLiquid):
         """Increases tummy and diuretic level
         """
-        _name = "Hot Brown Morning Potion"
-        _plural_name = "Hot Brown Morning Potions"
-        _volume = 600
-        _description = f"A {_volume}mL thermos of Hot Brown Morning Potion. Imported fresh from Xadia this afternoon."
-        _diuretic_level = 50
-        _cost = 10
-        _menu_option_text = "Give her some Hot Brown Morning Potion."
-        _consumption_confirmation_response = "Whoa, this was imported from Xadia this afternoon?! No way! It's delicious!"
+        name: str = "Hot Brown Morning Potion"
+        plural_name: str = "Hot Brown Morning Potions"
+        volume: int = 600
+        description: str = f"A {volume}mL thermos of Hot Brown Morning Potion. Imported fresh from Xadia this afternoon."
+        _diuretic_level: int = 50
+        cost: int = 10
+        remove_upon_use: bool = True
+        _menu_option_text: str = "Give her some Hot Brown Morning Potion."
+        _consumption_confirmation_response: str = "Whoa, this was imported from Xadia this afternoon?! No way! It's delicious!"
 
 
+    @dataclass(frozen=True)
+    class AppleBlood(ConsumableLiquid):
+        """Increases tummy and diuretic level (Formerly soda)
+        """
+        name: str = "Apple Blood"
+        plural_name: str = "bottles of Apple Blood"
+        volume: int = 500
+        description: str = f"A {volume}mL bottle of non-alcholic Apple Blood. Contains diuretic"
+        remove_upon_use: bool = True
+        _diuretic_level: int = 30
+        cost: int = 7
+        _menu_option_text: str = "Give her a bottle of Apple Blood."
+        _consumption_confirmation_response: str = "That was refreshing!"
+
+
+    @dataclass(frozen=True)
     class BouquetOfRoses(MoodAlteringItem):
         """Increases mood and decreases shyness
         """
-        _name = "Roses"
-        _plural_name = "bouquets of roses"
-        _description = "A bouquet of pretty roses my beautiful girlfriend!"
-        _cost = 20
-        _menu_option_text = "Give her a bouquet of roses."
-        _consumption_confirmation_response = "Thanks! They're beautiful."
-        _consumption_emergency_response = "Thanks for the flowers, but I really need to pee."
-        _bribery_response = "Ok, for roses..."
-        _delta_mood = 10
-        _delta_mood_emergency = 7
+        name: str  = "Roses"
+        plural_name: str  = "bouquets of roses"
+        description: str  = "A bouquet of pretty roses my beautiful girlfriend!"
+        cost: int = 20
+        remove_upon_use: bool = True
+        _consumption_confirmation_response: str  = "Thanks! They're beautiful."
+        _consumption_emergency_response: str  = "Thanks for the flowers, but I really need to pee."
+        _bribery_response: str  = "Ok, for roses..."
+        _menu_option_text: str  = "Give her a bouquet of roses."
+        _delta_mood: int = 10
+        _delta_mood_emergency: int = 7
 
+    @dataclass(frozen=True)
     class AzuraDiamondEarring(MoodAlteringItem):
         """Increases mood and decreases shyness
         """
-        _name = "Azura Themed Diamond Earrings"
-        _plural_name = "Azura Themed Diamond Earrings"
-        _description = "Any fan of the Azura series would find this pair of earrings adorable!"
-        _cost = 60
-        _menu_option_text = "Give her a pair of Azura themed diamond earrings."
-        _consumption_confirmation_response = "OMG! Azura themed earrings!? They're so beautiful, thank you so much!"
-        _consumption_emergency_response = "Thanks for the earrings, but I really need to pee."
-        _bribery_response = "OMG! Azura themed earrings!? I'd have done much more than hold my pee for these, you got a deal!"
-        _delta_mood = 30
-        _delta_mood_emergency = 25
+        name: str  = "Azura Themed Diamond Earrings"
+        plural_name: str  = "Azura Themed Diamond Earrings"
+        description: str  = "Any fan of the Azura series would find this pair of earrings adorable!"
+        cost: int = 60
+        remove_upon_use: bool = True
+        _menu_option_text: str  = "Give her a pair of Azura themed diamond earrings."
+        _consumption_confirmation_response: str  = "OMG! Azura themed earrings!? They're so beautiful, thank you so much!"
+        _consumption_emergency_response: str  = "Thanks for the earrings, but I really need to pee."
+        _bribery_response: str  = "OMG! Azura themed earrings!? I'd have done much more than hold my pee for these, you got a deal!"
+        _delta_mood: int = 30
+        _delta_mood_emergency: int = 25
 
+    @dataclass(frozen=True)
     class FlowerVase(LiquidContainerItem):
         """Can be used to contain liquids in case of emergencies...
         """
-        _name = "Flower Vase"
-        _plural_name = "flower vases"
-        _capacity = 2000
-        _description = f"This flower vase has a capacity of {_capacity}mL"
-        _cost = 30
-        _menu_option_text = "Give her a vase."
+        name: str  = "Flower Vase"
+        plural_name: str  = "flower vases"
+        _capacity: int = 2000
+        description: str = f"This flower vase has a capacity of {_capacity}mL"
+        cost: int = 30
+        remove_upon_use: bool = False
+        _menu_option_text: str  = "Give her a vase."
 
 
+    @dataclass(frozen=True)
     class ShotGlass(LiquidContainerItem):
         """Can be used to contain liquids in case of emergencies...
         """
-        _name = "Shot Glass"
-        _plural_name = "shot glasses"
-        _capacity = 50
-        _description = f"This shot glass has a capacity of {_capacity}mL"
-        _cost = 10
-        _menu_option_text = "Give her a shot glass."
+        name: str  = "Shot Glass"
+        plural_name: str  = "shot glasses"
+        _capacity: int = 100
+        description: str = f"This shot glass has a capacity of {_capacity}mL"
+        cost: int = 10
+        remove_upon_use: bool = False
+        _menu_option_text: str  = "Give her a shot glass."
 
 
+    @dataclass(frozen=True)
     class PaperTowelRoll(LiquidContainerItem):
         """Can be used to contain liquids in case of emergencies...
         """
-        _name = "Paper Towel Roll"
-        _plural_name = "rolls of paper towels"
-        _capacity = 3000
-        _description = f"This roll of paper towels is extra absorbent! Rumour has it a whole roll can soak up to {_capacity}mL of liquid!"
-        _cost = 30
-        _menu_option_text = "Give her a roll of paper towels."
+        name: str  = "Paper Towel Roll"
+        plural_name: str  = "rolls of paper towels"
+        _capacity: int = 3000
+        description: str = f"This roll of paper towels is extra absorbent! Rumour has it a whole roll can soak up to {_capacity}mL of liquid!"
+        cost: int = 10
+        remove_upon_use: bool = True
+        _menu_option_text: str  = "Give her a roll of paper towels."
 
 
+    @dataclass(frozen=True)
     class SexyPanties(InventoryItem):
         """A sexy piece of fabric that barely covers anything
         """
-        _name = "Sexy Panties"
-        _plural_name = "pairs of sexy panties"
-        _description = f"A sexy piece of fabric that barely covers anything."
-        _cost = 30
-        _menu_option_text = "Give her a sexy pair of panties."
+        name: str  = "Sexy Panties"
+        plural_name: str  = "pairs of sexy panties"
+        description: str = f"A sexy piece of fabric that barely covers anything."
+        cost: int = 30
+        remove_upon_use: bool = True
+        _menu_option_text: str  = "Give her a sexy pair of panties."
 
+        def use_item(
+            self, 
+            girlfriend = None, 
+            gametime: Time | None = None, 
+            **kwargs
+            ) -> bool:
+            return False
 
+    @dataclass(frozen=True)
     class ArtisanGrapeBlood(ConsumableLiquid):
         """Increases tummy and diuretic level
         """
-        _name = "Artisan Grape Blood"
-        _plural_name = "bottles of Artisan Grape Blood"
-        _volume = 50
-        _description = f"The finest grape blood that was available at the Bonesborough Marketplace on a Tuesday afternoon."
-        _diuretic_level = 30
-        _cost = 50
-        _menu_option_text = "Give her some artisan grape blood."
-        _show_in_all_relevant_choice_menus = False
+        name: str  = "Artisan Grape Blood"
+        plural_name: str  = "bottles of Artisan Grape Blood"
+        volume: int = 50
+        description: str = f"The finest grape blood that was available at the Bonesborough Marketplace on a Tuesday afternoon."
+        _diuretic_level: int = 30
+        cost: int = 50
+        remove_upon_use: bool = False
+        _menu_option_text: str  = "Give her some artisan grape blood."
+        _show_in_all_relevant_choice_menus: bool = False
 
     # --- Keys --- #
+
+    @dataclass(frozen=True)
+    class CoventionTheatreKey(Keys):
+        name: str = "Covention Theatre Key"
+        plural_name: str = "Covention Theatre Keys"
+        description: str = "Perhaps we can use this to enter the Covention Theatre after it's closed?"
+        door_id: Door = Door.COVENTION_HALL_PLAY
+
+        def use_item(self):
+            pass
+
+    @dataclass(frozen=True)
+    class GrimgrubsPubKey(Keys):
+        name: str = "Grimgrubs Pub Key"
+        plural_name: str = "Grimgrubs Pub Keys"
+        description: str = "Perhaps we can use this to enter Grimgrub's Pub after it's closed?"
+        door_id: Door = Door.GRIMGRUBS_PUB
+
+        def use_item(self):
+            pass
+
+    @dataclass(frozen=True)
+    class NightclubKey(Keys):
+        name: str = "Nightclub Key"
+        plural_name: str = "Nightclub Keys"
+        description: str = "Perhaps we can use this to enter the Nightclub after it's closed?"
+        door_id: Door = Door.NIGHTCLUB_DANCE_VENUE
+        
+        def use_item(self):
+            pass

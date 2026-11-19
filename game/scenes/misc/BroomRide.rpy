@@ -21,6 +21,20 @@ label BroomRide:
             call showNeed(character.mainCharacter, girlfriend) from _call_showNeed_1
             jump JustFlyAround
 
+        # TODO: This was a failed attempt... the text option in menu is very strict about what's allowed :(
+        "[complimentGirlfriend!i]" if complimentGirlfriendConditional():
+            call complimentGirlfriendResult(girlfriend) from _call_complimentGirlfriendResult
+
+        # "Compliment [girlfriend.name]":
+        #     call compliment(girlfriend) 
+        #     call updateTimeAndStats() 
+        #     Amity "You're so sweet Luz!"
+        #     call showNeed(character.mainCharacter, girlfriend) 
+
+        # TODO: Find a way to centralize all menu choices
+        "[askPeeOption]" if askPeeConditional(girlfriend):
+            call askPeeResult() from _call_askPeeResult
+
         "Give her something to drink" if inventory.hasUniversalConsumableLiquid:
             call updateTimeAndStats() from _call_updateTimeAndStats_1
             call universalConsumableLiquidMenuChoices() from _call_universalConsumableLiquidMenuChoices

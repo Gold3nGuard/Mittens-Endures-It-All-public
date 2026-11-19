@@ -1,4 +1,4 @@
-init -5 python:
+init -10 python:
 
     from abc import ABC
 

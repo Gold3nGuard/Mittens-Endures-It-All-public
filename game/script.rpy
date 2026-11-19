@@ -10,6 +10,8 @@ default currentLocation = Location.PRE_DATE
 #     from src.InventorySystem import Inventory
 #     from src.GirlfriendStats import Girlfriend
 
+# Initialize a custom random number generator object
+default rng = RandomNumberGenerator()
 
 # The game starts here.
 label start:

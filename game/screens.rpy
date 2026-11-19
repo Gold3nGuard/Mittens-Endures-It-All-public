@@ -1269,14 +1269,17 @@ screen notify(message):
     style_prefix "notify"
 
     frame at notify_appear:
-        text "[message!tq]"
+        text message: # Note that this processes messages the way Ren'Py usually does, which means it is unsafe to use for player-generated text! If processing player-generated text, use !tq to make it display the raw string. 
+            substitute False
+            slow_cps 0
 
     timer 3.25 action Hide('notify')
 
 
 transform notify_appear:
 
-    yalign 0.5
+    # Position of notify screen
+    yalign 0.7
 
     on show:
         alpha 0

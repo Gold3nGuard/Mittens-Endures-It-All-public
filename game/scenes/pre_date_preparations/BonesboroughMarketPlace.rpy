@@ -1,10 +1,5 @@
 define Merchant = Character("Merchant", color="#37f146")
 
-# label promptForQuantityInput(item):
-#     renpy.input(prompt="How much [item.name] do you want to purchase?")
-#     $ itemPurchasedSuccessfully = inventory.attemptPurchaseItem(item_water)
-
-
 label BonesboroughMarketPlace:
 
     # Display marketplace background
@@ -14,6 +9,9 @@ label BonesboroughMarketPlace:
     show luz happy:
         xalign 0.1
         yalign 0.9
+
+    # Update Location Flag
+    $ currentLocation = Location.BONESBOROUGH_MARKET
 
     "What should I purchase?"
 
@@ -73,7 +71,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] flower vases were purchased for $[item_vase.cost * quantityPurchased]."
 
-        "(Doesn't do much yet) A shot glass ($[item_shot.cost])":
+        "A shot glass ($[item_shot.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_shot)
             call updateTimeAndStats() from _call_updateTimeAndStats_16
             if quantityPurchased == 1:
@@ -89,7 +87,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] rolls of paper towels were purchased for $[item_roll.cost * quantityPurchased]."
 
-        "A pair of sexy panties ($[item_panties.cost])":
+        "(Doesn't do much yet) A pair of sexy panties ($[item_panties.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_panties)
             call updateTimeAndStats() from _call_updateTimeAndStats_18
             if quantityPurchased >= 1:
@@ -112,7 +110,7 @@ label BonesboroughMarketPlace:
             # Merchant "Hey GoldenGuard, Remember to implement a better inventory GUI for this game!..."
             jump PrepareForDate
 
-    if quantityPurchased == -1:
+    if quantityPurchased == PurchaseFailedState.NOT_ENOUGH_SNAILS.value:
         jump NotEnoughSnails
     elif quantityPurchased == 0:
         Merchant "Titan! What good are you to me if you won't buy anything?"

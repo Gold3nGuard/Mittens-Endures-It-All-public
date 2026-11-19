@@ -25,8 +25,14 @@ screen snails():
 screen hud():
     modal False
 
+    # Press E to open inventory
+    key "K_e" action [Show("inventory"), Hide("hud")]
+    # Controller guide button opens inventory
+    key "pad_back_press" action [Show("inventory"), Hide("hud")]
+
     # Inventory icon
     imagebutton auto "bg_inventory_luzs_bag_closed_%s.png":
+        id "inventory_open_button"
         focus_mask True
         keyboard_focus False
         hovered SetVariable("screen_tooltip", "Inventory")
@@ -38,6 +44,11 @@ screen inventory():
     add "minecraft_inventory"
     modal True
 
+    # Press E to close inventory
+    key "K_e" action [Show("hud"), Hide("inventory")]
+    # Controller guide button closes inventory
+    key "pad_back_press" action [Show("hud"), Hide("inventory")]
+
     # Display items
     vbox:
         pos 0.1, 0.25
@@ -45,11 +56,8 @@ screen inventory():
 
     # Close inventory icon
     imagebutton auto "bg_inventory_luzs_bag_open_%s.png":
+        id "inventory_close_button"
         focus_mask True
         hovered SetVariable("screen_tooltip", "Return")
         unhovered SetVariable("screen_tooltip", "")
         action Show("hud"), Hide("inventory")
-
-
-
-

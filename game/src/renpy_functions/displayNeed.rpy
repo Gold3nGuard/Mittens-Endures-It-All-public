@@ -1,9 +1,11 @@
+# This module is mainly for functions related to main character noticing girlfriend's need to pee
 # Import statements
 init python:
     from random import random
 
 # Constants for this module
-define TWO_TURNS_FROM_WETTING = 60
+define TWO_TURNS_FROM_WETTING = 2*30
+define THREE_TURNS_FROM_WETTING = 3*30
 
 # Every label here needs a return statement and should only be called to, not jumped to!
 label showNeed(mainCharacter, girlfriend, changeVenue = False):
@@ -19,6 +21,8 @@ label showNeed(mainCharacter, girlfriend, changeVenue = False):
     #  Inner IFs determine pee request parameters
     #  Upper IFs are emergencies
 
+    $ girlfriend.gotta_go_flag = False
+
     # === CONTROL FLOW === #
     # If she's within 2 turns of wetting and not too shy,
     # (+ she's mentioned needing to pee before), 
@@ -28,6 +32,7 @@ label showNeed(mainCharacter, girlfriend, changeVenue = False):
         (girlfriend.broke_ice == False)
         ):
         call displayGottaGoVocalization() from _call_displayGottaGoVocalization
+
 
     # If she's within 2 turns of wetting, it'll look obvious
     elif ((girlfriend.bladder >= girlfriend.bladder_lose - TWO_TURNS_FROM_WETTING) and
@@ -77,11 +82,11 @@ label showNeed(mainCharacter, girlfriend, changeVenue = False):
             call displayGottaGoVocalization() from _call_displayGottaGoVocalization_4
 
         # Otherwise, she may or may not show symptoms of having to go
-        elif (random() * girlfriend.bladder_lose < girlfriend.bladder):
+        elif (renpy.random.random() * girlfriend.bladder_lose < girlfriend.bladder):
             call displayNeed() from _call_displayNeed
         
     # Otherwise, she may or may not show symptoms of having to go
-    elif (random() * girlfriend.bladder_lose < girlfriend.bladder):
+    elif (renpy.random.random() * girlfriend.bladder_lose < girlfriend.bladder):
         call displayNeed() from _call_displayNeed_1
 
     # The original doesn't have this here... TODO: figure out what i wanna do with this function
@@ -91,17 +96,30 @@ label showNeed(mainCharacter, girlfriend, changeVenue = False):
 
 label displayNeed():
     # Displays text that describes how your girlfriend is reacting to the state of her bladder.
-    $ randInt = renpy.random.randint(0,5)
     if girlfriend.peeUrgencyLevel == PeeUrgencyLevel.FIRST_URGE:
+        $ randInt = renpy.random.randint(0,5)
         "[needUrge[randInt]]"
     elif girlfriend.peeUrgencyLevel == PeeUrgencyLevel.BLADDER_NEED:
+        $ randInt = renpy.random.randint(0,5)
         "[needNeed[randInt]]"
     elif girlfriend.peeUrgencyLevel == PeeUrgencyLevel.BLADDER_EMERGENCY:
+        $ randInt = renpy.random.randint(0,5)
         "[needEmer[randInt]]"
     elif (girlfriend.peeUrgencyLevel.value >= PeeUrgencyLevel.BLADDER_LOSE.value
     ):
+        $ randInt = renpy.random.randint(0,5)
         "[needLose[randInt]]"
+
+    $ girlfriend.showed_need = True
     
+    return
+
+label noteHolding():
+    # NOTE: Untested
+    # Formerly `noteholding`
+    if (girlfriend.bladder >= girlfriend.bladder_emergency and girlfriend.ask_hold_it_counter > 0):
+        $ randInt = renpy.random.randint(0, 5) 
+        "[sheholds[randInt]]"
     return
 
 label interpBladder():
@@ -121,31 +139,39 @@ label displayGottaGoVocalization():
     # Originally `displaygottavoc`
     # Prints text of girlfriend vocalizing that she hopes to find a bathroom soon.
 
+    # # Default set flags to True, but best to set them in every if block
+    # $ girlfriend.gotta_go_flag = True
+    # $ girlfriend.broke_ice = True 
 
     # For cases when Amity is at PeeUrgencyLevel.BLADDER_LOSE, have the program
     # include her voice audio from Wing It Like Witches saying "I GOTTA GO!"
     if (girlfriend.broke_ice and girlfriend.name == "Amity"):
         if ((girlfriend.bladder >= girlfriend.bladder_lose) or
             ((girlfriend.bladder >= girlfriend.bladder_emergency) and 
-                (randomChoice(80))
+                (rng.randomChoice(80, update_state = False))
             ) or
             ((girlfriend.bladder >= girlfriend.bladder_need) and 
-                (randomChoice(40))
+                (rng.randomChoice(40, update_state = False))
             )
         ):
             voice "audio/Amity_I_Gotta_Go.mp3"
             Amity "I GOTTA GO!!!"
             voice sustain
+            $ girlfriend.gotta_go_flag = True
+            $ girlfriend.broke_ice = True 
 
     # If you've asked gf to hold it, and she feels an urge to pee, 
     # there's a 30% chance that she'll ask anyways. 
     if ((girlfriend.ask_hold_it_counter > 0) and
         (girlfriend.bladder > girlfriend.bladder_urge) and 
-        (randomChoice(30))
+        (rng.randomChoice(30))
     ):
         $ randInt = renpy.random.randint(0,5)
         girlfriend "[wantHold[randInt]]"
         voice sustain
+        $ girlfriend.gotta_go_flag = True
+        $ girlfriend.broke_ice = True 
+
 
     # If this is the first time she's vocalized her need 
     # and she didn't agree to hold it before you picked her up, 
@@ -165,6 +191,8 @@ label displayGottaGoVocalization():
     # of included submissive dialogue. If I decide in the future to add that
     # in, this is where to add it in. See `displaygottavoc()` for original implementation
     if currentLocation == Location.BROOM:
+        $ girlfriend.gotta_go_flag = True
+        $ girlfriend.broke_ice = True 
         $ randInt = renpy.random.randint(0,5)
         if (girlfriend.peeUrgencyLevel == PeeUrgencyLevel.FIRST_URGE):
             girlfriend "[broomUrgeGottaGoVocalization[randInt]]"
@@ -181,6 +209,8 @@ label displayGottaGoVocalization():
 
     # Vocalization everywhere else
     else:
+        $ girlfriend.gotta_go_flag = True
+        $ girlfriend.broke_ice = True 
         $ randInt = renpy.random.randint(0,5)
         if (girlfriend.peeUrgencyLevel == PeeUrgencyLevel.FIRST_URGE):
             girlfriend "[urgeGottaGoVocalization[randInt]]"
@@ -195,19 +225,13 @@ label displayGottaGoVocalization():
             girlfriend "[loseGottaGoVocalization[randInt]]"
             voice sustain
 
-
-    # Update gotta_go_flag and broke_ice flag.
-    # TODO: Ensure that these flags actually get updated when they're supposed to
-    # I think gotta_go_flag is fine
-    # But there's a possibility that broke_ice gets toggled when it's not supposed to
-    # She needs to have vocalized that she needs to pee...
-    if (girlfriend.bladder >= girlfriend.bladder_need): 
+    if (girlfriend.peeUrgencyLevel.value >= PeeUrgencyLevel.BLADDER_NEED.value): 
         $ girlfriend.gotta_go_flag = True
+    if (girlfriend.peeUrgencyLevel.value >= PeeUrgencyLevel.FIRST_URGE.value): 
+        $ girlfriend.broke_ice = True
+    
 
-    # I think this should be toggled to true at the end everytime the function is called
-    $ girlfriend.broke_ice = True 
-    # if (girlfriend.bladder >= girlfriend.bladder_urge): 
-    #     $ girlfriend.broke_ice = True
+    call askPeeFollowUpQuestions(girlfriend) from _call_askPeeFollowUpQuestions
 
     return
 
@@ -275,7 +299,7 @@ label checkWetHerself(mainCharacter, girlfriend):
         "[wetQuote[randInt]]"
 
         # Check if she spurts rather than wets
-        if ((randomChoice(spurt_threshold)) and 
+        if ((rng.randomChoice(spurt_threshold)) and 
             (currentLocation != Location.THE_HOT_TUB) and
             (not girlfriend.spurted)
         ):
@@ -307,7 +331,7 @@ label wetHerself2(mainCharacter, girlfriend):
         "She arches her back, lifting her ass off the staff."
         "You hear the loud hissing as her bladder uncontrollably empties itself."
         "You feel drops of her urine as the wind blows the cascading liquid in your direction."
-        "It feels like a warm rain drizzling on your back."
+        "It feels like a warm rain drizzling on your legs."
         $ girlfriend.pees(gametime = gametime)
         $ girlfriend.wet_legs = True 
         $ girlfriend.wet_her_panties = True
@@ -376,12 +400,13 @@ label wetHerself3(mainCharacter, girlfriend):
                 call giveDryPanties() from _call_giveDryPanties
 
             "Continue...":
-                call updateTimeAndStats() from _call_updateTimeAndStats_33
+                pass
 
-    $ girlfriend.now_wetting = False
+    call updateTimeAndStats() from _call_updateTimeAndStats_39
     return
 
 label givePaperTowels():
+    # Formerly giveptowels()
     
     girlfriend "Thanks!"
     "She wipes the pee from her legs and pussy."
@@ -395,7 +420,7 @@ label givePaperTowels():
             call giveDryPanties() from _call_giveDryPanties_1
 
         "Continue...":
-            call updateTimeAndStats() from _call_updateTimeAndStats_34
+            pass
 
     return 
 
@@ -414,6 +439,42 @@ label giveDryPanties():
 
     menu:
         "Continue...":
-            call updateTimeAndStats() from _call_updateTimeAndStats_39
+            pass
 
     return 
+
+label askPee(mainCharacter, girlfriend):
+    # This function is called when you ask gf if she needs to pee
+
+    $ randInt = renpy.random.randint(0,5) 
+    mainCharacter "[askPeeQuote[randInt]]"
+
+    # gf is apprehensive
+    if (girlfriend.shyness > 60):
+        "{i}[girlfriend.name] blushes.{/i}"
+    else:
+        girlfriend "..."
+
+    if (girlfriend.bladder > girlfriend.bladder_need and 
+        girlfriend.bladder < girlfriend.bladder_emergency):
+        "She seems to be considering the matter..."
+
+    # If gf decides to tell you
+    if (((girlfriend.shyness < 50 and girlfriend.bladder > girlfriend.bladder_need) or
+        (girlfriend.bladder > girlfriend.bladder_emergency)) and
+        ((currentLocation != Location.DRINKING_GAME) and not(girlfriend.external_flirt))
+        ):
+        
+        call displayGottaGoVocalization() from _call_displayGottaGoVocalization_6
+        call interpBladder() from _call_interpBladder
+        call showNeed(mainCharacter, girlfriend) from _call_showNeed_7
+        # call askPeeFollowUpQuestions(girlfriend)
+
+    # If gf decides to deny it
+    else: 
+        $ randInt = renpy.random.randint(0,5)
+        girlfriend "[denyGottaGoVocalization[randInt]]"
+        call displayNeed() from _call_displayNeed_4
+        call interpBladder() from _call_interpBladder_1 
+
+    return

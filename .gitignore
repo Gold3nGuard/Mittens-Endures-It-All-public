@@ -7,6 +7,9 @@ logs/
 archive/
 saves/
 Melissa Endures it All - Biku/
+suggestions/
+tests/src/
+libs/
 lib/
 renpy/
 
@@ -21,7 +24,6 @@ renpy/
 *.rpym
 *.aup3*
 
-
 # Specific Files
 log.txt
 traceback.txt
@@ -32,10 +34,7 @@ src/GirlfriendStats.py
 src/InventoryItems.py
 src/InventorySystem.py
 git-filter-repo
-renamed_variables.txt
+renamed_variables.md
 project.json
-MittensEnduresItAll-v0.1.1-pc.zip
-MittensEnduresItAll.exe
-MittensEnduresItAll.py
-MittensEnduresItAll.sh
-game/script_version.txt
+renpy_program_path.txt
+how_to_launch_the_renpy_program.txt

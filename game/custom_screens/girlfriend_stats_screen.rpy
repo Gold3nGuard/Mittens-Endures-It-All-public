@@ -11,4 +11,4 @@ screen girlfriend_stats():
             ypadding 10
             xalign 0.5
             yalign 0.5
-            text "{size=[STATS_SIZE]}Time: [gametime.display()]\n[gf_stats_summary]"
+            text "{size=[STATS_SIZE]}Time: [gametime.display()]\n[gf_stats_summary]{/size}"
