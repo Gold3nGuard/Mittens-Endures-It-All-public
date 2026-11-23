@@ -33,7 +33,8 @@ label CallAmityChoices:
     # jump PrepareForDate
 
 
-label PhoneFavours:
+label PhoneFavours: # TODO: I haven't completely implemented this yet, 
+    # look at the functions favor() and gotta() from the original html
 
     Luz "Could I ask please for a favour before our date?"
     Amity "Oh alright, since you're asking so nicely Batata."
@@ -91,7 +92,7 @@ label waitpickup(girlfriend):
 
     # } else if (buddywaterfavor == 1 && shyness <= 80 && !buddysubfavor) {
     # If gf can't access bathroom anyways and isn't too shy. buddysubfavor is NYI
-    if (buddyCalled in BUDDY_BATHROOM_HOGS) and (girlfriend.shyness <= 80):
+    if (buddyCalled in BUDDY_BATHROOM_HOGS):
         if buddyCalled == buddyCalledOptions.EMIRA:
             girlfriend "Fine."
             girlfriend "Emira is currently hogging the bathroom, so it's not like I'd be able to use it anyways. Just please hurry up, okay?"

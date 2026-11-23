@@ -6,7 +6,7 @@
 
 1. Download the [latest release](https://github.com/Gold3nGuard/Mittens-Endures-It-All-public/releases/latest)
 2. Unzip the archive to a folder of your choice.
-3. Go into the folder `MittensEnduresItAll-v0.2.5-pc`
+3. Go into the folder `MittensEnduresItAll-v0.2.6-pc`
 4. Run `MittensEnduresItAll.exe`
 5. Enjoy!
 
@@ -30,6 +30,10 @@ I use a Game Sir Nova Lite controller. Using the settings I normally use for ste
 If you use Linux like me, the XInput mode inverts the joystick for the Game Sir Nova Lite controller. You're using Linux, so you can Google how to fix that if that bothers you. 
 
 ## Changelog
+
+### v0.2.6
+
+Changed how bathroom hog buddy works as I wrote it to be different from the buddywater system in the original: Emira saying she locked the bathrooms will actually prevent Amity from peeing before the date, previously, she would still go if her shyness level was too high. 
 
 ### v0.2.5
 

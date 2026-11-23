@@ -1,6 +1,7 @@
 # TODO
 
 ## General
+- Finish implementing the phone dialogue from favor() and gotta()
 - Finish implementing holdIt(), display_hold_quip()
 - Add 2 more pee desperation stories
 - Implement begToilet()
