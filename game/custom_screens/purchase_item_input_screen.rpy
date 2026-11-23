@@ -8,15 +8,27 @@ default min_quantity = 0
 init python:
 
     def increment_quantity():
+
+        if store.quantity == "":
+            updated_quantity = "0"
+        else:
+            updated_quantity = str(int(store.quantity) + 1)
+
         return SetVariable(
                 "quantity",
-                str(int(store.quantity) + 1),
+                updated_quantity,
             )
 
     def decrement_quantity():
+
+        if store.quantity == "":
+            updated_quantity = "0"
+        else:
+            updated_quantity = str(max(store.min_quantity, int(store.quantity) - 1))
+
         return SetVariable(
                 "quantity",
-                str(max(store.min_quantity, int(store.quantity) - 1))
+                updated_quantity,
             )
 
 
@@ -44,7 +56,7 @@ screen purchase_item_input_screen(prompt):
             text prompt style "input_prompt"
 
             # # Dynamically show the price
-            text "Total Cost: ${} ".format(item_price * int(quantity) if quantity.isdigit() else 0) style "input_prompt"
+            text "Total Cost: ${} ".format(item_price * int(quantity) if (isinstance(quantity, int) or quantity.isdigit()) else 0) style "input_prompt"
 
             # Dynamically update quantity, which updates the price
             input value VariableInputValue("quantity") id "input" 

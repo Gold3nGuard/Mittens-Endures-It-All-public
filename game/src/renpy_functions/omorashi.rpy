@@ -1,6 +1,6 @@
 # This module is for various interactions you can have with your girlfriend asking her about her need to pee
 define CLOSED_AFTER_DARK_LOCATIONS = [Location.DARK_BAR, Location.DARK_COVENTION, Location.DARK_CLUB]
-define MAX_P_STORY = 8
+define MAX_P_STORY = 6 # Supposed to be 8, but only implemented 6 stories
 default pstorycounter = renpy.random.randint(1,MAX_P_STORY) - 1
 
 label askPeeFollowUpQuestions(girlfriend):

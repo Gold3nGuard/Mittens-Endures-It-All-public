@@ -106,13 +106,14 @@ init -3 python:
             """
 
             # Ask for a quantity prompt
-            quantity: int = int(renpy.input(
+            quantity_prompt: str = renpy.input(
                     prompt=f"How many {item.plural_name} do you want to purchase?${item.cost}", 
                     default="1", 
                     allow="0123456789", 
                     length=16,
                     screen="purchase_item_input_screen"
-                    ))
+                    )
+            quantity: int = int(quantity_prompt) if quantity_prompt else 0
 
             total_cost = item.cost * quantity
             # If the purchase costs too much, deny the transaction

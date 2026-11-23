@@ -45,7 +45,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] bottles of Hot Brown Morning Potions were purchased for $[item_hbmp.cost * quantityPurchased]."
 
-        "(Doesn't do much yet) A bouquet of red roses ($[item_rose.cost])":
+        "A bouquet of red roses ($[item_rose.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_rose)
             call updateTimeAndStats() from _call_updateTimeAndStats_13
             if quantityPurchased == 1:
@@ -53,7 +53,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] bouquets of roses were purchased for $[item_rose.cost * quantityPurchased]."
 
-        "(Doesn't do much yet) A pair of Azura themed diamond earrings ($[item_diam.cost])":
+        "A pair of Azura themed diamond earrings ($[item_diam.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_diam)
             call updateTimeAndStats() from _call_updateTimeAndStats_14
             if quantityPurchased >= 1:
@@ -63,7 +63,7 @@ label BonesboroughMarketPlace:
                     "[quantityPurchased] pairs of Azura themed diamond earrings purchased for $[item_diam.cost * quantityPurchased]."
                 mainCharacter "[girlfriend.name] already has a bunch of diamond earrings, but she's gonna love these Azura themed ones!"
 
-        "(Doesn't do much yet) A flower vase ($[item_vase.cost])":
+        "A flower vase ($[item_vase.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_vase)
             call updateTimeAndStats() from _call_updateTimeAndStats_15
             if quantityPurchased == 1:
@@ -87,7 +87,7 @@ label BonesboroughMarketPlace:
             elif quantityPurchased > 1:
                 "[quantityPurchased] rolls of paper towels were purchased for $[item_roll.cost * quantityPurchased]."
 
-        "(Doesn't do much yet) A pair of sexy panties ($[item_panties.cost])":
+        "A pair of sexy panties ($[item_panties.cost])":
             $ quantityPurchased = inventory.attemptPurchaseItem(item_panties)
             call updateTimeAndStats() from _call_updateTimeAndStats_18
             if quantityPurchased >= 1:
